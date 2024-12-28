@@ -1,7 +1,6 @@
-/* Global styles */
 :root {
   --primary-color: #0070f3;
-  --background-color: #ffffff;
+  --background-color: #f8f9fa;
   --text-color: #333333;
 }
 
@@ -14,6 +13,11 @@ body {
   color: var(--text-color);
 }
 
-h1 {
-  color: var(--primary-color);
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
