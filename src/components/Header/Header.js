@@ -11,6 +11,7 @@ export default function Header() {
         <ul className={styles.menu}>
           <li><a href="/">Home</a></li>
           <li><a href="/reports">Reports</a></li>
+          <li><a href="/new-inspection">New Inspection</a></li>
           <li><a href="/clients">Clients</a></li>
           <li><a href="/settings">Settings</a></li>
         </ul>
