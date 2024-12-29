@@ -1,0 +1,253 @@
+.formSection {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.fieldGroup {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.fieldGroup:last-child {
+  margin-bottom: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.input::placeholder {
+  color: #adb5bd;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.checkboxGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox span {
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.checkbox:hover span {
+  color: var(--primary-color);
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px;
+  padding-right: 2.5rem;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.optional {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+  font-weight: normal;
+}
+
+/* Severity level colors */
+.severity-low {
+  color: #28a745;
+}
+
+.severity-medium {
+  color: #ffc107;
+}
+
+.severity-high {
+  color: #fd7e14;
+}
+
+.severity-critical {
+  color: #dc3545;
+}
+
+/* Photo upload styles */
+.dropzone {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.dropzone:hover,
+.dropzoneActive {
+  border-color: var(--primary-color);
+  background-color: #f8f9fa;
+}
+
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: #6c757d;
+}
+
+.uploadIcon {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.dropzoneHint {
+  font-size: 0.85rem;
+  color: #adb5bd;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.photoPreview {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.previewImage {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.removePhoto {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #dc3545;
+  transition: all 0.2s ease;
+}
+
+.removePhoto:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.photoInfo {
+  padding: 0.75rem;
+  background-color: white;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.photoInfo span:first-child {
+  color: #495057;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photoInfo span:last-child {
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .formSection {
+    padding: 1rem;
+  }
+
+  .fieldGroup {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .input {
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+}

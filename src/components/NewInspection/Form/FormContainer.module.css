@@ -1,0 +1,232 @@
+.container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.sectionContainer {
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionContent {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: white;
+}
+
+.sectionWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.form {
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.submitButton,
+.saveButton {
+  padding: 0.875rem 1.75rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.saveButton {
+  background-color: white;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.saveButton:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Loading state */
+.submitButton.loading {
+  position: relative;
+  color: transparent;
+}
+
+.submitButton.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* Section transitions */
+.sectionEnter {
+  opacity: 0;
+  transform: translateX(50px);
+  position: absolute;
+  width: 100%;
+}
+
+.sectionEnterActive {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.sectionExit {
+  opacity: 1;
+  transform: translateX(0);
+  position: absolute;
+  width: 100%;
+}
+
+.sectionExitActive {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+}
+
+/* Section animation wrapper */
+.sectionAnimationWrapper {
+  position: relative;
+  min-height: inherit;
+}
+
+/* Error state */
+.error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: shake 0.4s ease-in-out;
+}
+
+.error::before {
+  content: '⚠️';
+}
+
+/* Success message */
+.successMessage {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.successMessage::before {
+  content: '✓';
+  background-color: #28a745;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .form {
+    padding: 1rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .submitButton,
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem;
+  }
+}
