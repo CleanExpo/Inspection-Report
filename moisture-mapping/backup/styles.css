@@ -1,0 +1,321 @@
+/* Base styles */
+:root {
+    --spacing-unit: 20px;
+    --border-radius: 8px;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: var(--spacing-unit);
+    background-color: #f5f5f5;
+    -webkit-text-size-adjust: 100%;
+}
+
+.moisture-mapping {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: var(--spacing-unit);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--spacing-unit);
+}
+
+/* Form styles with touch-friendly inputs */
+.room-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: var(--border-radius);
+}
+
+.form-row {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 16px; /* Larger for better touch targets */
+}
+
+.form-row input,
+.form-row select {
+    width: 100%;
+    padding: 12px; /* Larger for touch */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px; /* Native size on iOS */
+    touch-action: manipulation; /* Prevent double-tap zoom */
+    -webkit-appearance: none; /* Remove iOS default styling */
+}
+
+/* Touch-friendly dimensions inputs */
+.dimensions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.dimensions input {
+    width: 70px; /* Larger for touch */
+    text-align: center;
+}
+
+.dimensions span {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Equipment section */
+.equipment-section {
+    margin-top: var(--spacing-unit);
+    padding: 15px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.equipment-section select,
+.equipment-section input[type="date"] {
+    padding: 12px;
+    font-size: 16px;
+}
+
+/* Canvas and controls */
+.sketch-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    height: calc(100vh - 100px);
+    min-height: 500px;
+}
+
+.canvas-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Touch-friendly buttons */
+.icon-button {
+    min-width: 44px; /* Minimum touch target size */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tool-button {
+    min-height: 44px;
+    padding: 12px 20px;
+    font-size: 16px;
+}
+
+/* Responsive breakpoints */
+
+/* Large Desktop (1200px and up) */
+@media (min-width: 1200px) {
+    .moisture-mapping {
+        grid-template-columns: 300px 1fr;
+    }
+
+    .summary-content {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Desktop (992px to 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+    .moisture-mapping {
+        grid-template-columns: 280px 1fr;
+    }
+
+    .summary-content {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tablet Landscape (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .moisture-mapping {
+        grid-template-columns: 240px 1fr;
+        padding: 15px;
+    }
+
+    .summary-content {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sketch-tools {
+        flex-wrap: wrap;
+    }
+
+    .tool-button {
+        flex: 1 1 calc(33.333% - 10px);
+    }
+}
+
+/* Tablet Portrait (576px to 767px) */
+@media (min-width: 576px) and (max-width: 767px) {
+    body {
+        padding: 10px;
+    }
+
+    .moisture-mapping {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .sketch-container {
+        height: auto;
+        min-height: 400px;
+    }
+
+    .canvas-controls {
+        flex-direction: column;
+    }
+
+    .control-group {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .summary-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile (575px and down) */
+@media (max-width: 575px) {
+    body {
+        padding: 5px;
+    }
+
+    .moisture-mapping {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .sketch-container {
+        height: auto;
+        min-height: 300px;
+    }
+
+    .canvas-controls {
+        flex-direction: column;
+    }
+
+    .control-group {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tool-button {
+        flex: 1 1 calc(50% - 5px);
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .dimensions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dimensions input {
+        width: 100%;
+    }
+
+    .summary-content {
+        grid-template-columns: 1fr;
+    }
+
+    .equipment-section,
+    .moisture-legend,
+    .data-management {
+        margin-top: 10px;
+        padding: 10px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+    .tool-button,
+    .icon-button {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .canvas-wrapper {
+        touch-action: none; /* Prevent scrolling while drawing */
+    }
+
+    input[type="range"] {
+        height: 24px; /* Larger for touch */
+    }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .canvas-wrapper canvas {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #fff;
+    }
+
+    .moisture-mapping {
+        background-color: #1e1e1e;
+    }
+
+    .form-row input,
+    .form-row select {
+        background-color: #2d2d2d;
+        color: #fff;
+        border-color: #404040;
+    }
+}
+
+/* Print styles */
+@media print {
+    .moisture-mapping {
+        box-shadow: none;
+    }
+
+    .sketch-tools,
+    .canvas-controls {
+        display: none;
+    }
+}

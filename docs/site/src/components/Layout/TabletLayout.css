@@ -1,0 +1,119 @@
+.tablet-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.tablet-header {
+  height: var(--header-height, 60px);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  background-color: var(--header-bg, white);
+  z-index: var(--header-z-index, 20);
+}
+
+.tablet-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.tablet-sidebar {
+  position: relative;
+  width: var(--sidebar-width, 320px);
+  background-color: var(--sidebar-bg, white);
+  border-right: 1px solid var(--border-color, #e5e7eb);
+  transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.tablet-layout.collapsed .tablet-sidebar {
+  width: var(--collapsed-sidebar-width, 60px);
+}
+
+.tablet-sidebar-toggle {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--toggle-bg, white);
+  border: 1px solid var(--border-color, #e5e7eb);
+  color: var(--toggle-color, #6b7280);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tablet-sidebar-toggle:hover {
+  background-color: var(--toggle-hover-bg, #f3f4f6);
+  color: var(--toggle-hover-color, #374151);
+}
+
+.tablet-toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.tablet-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--main-padding, 1.5rem);
+  background-color: var(--main-bg, #f9fafb);
+}
+
+/* Touch optimization */
+.tablet-sidebar-toggle {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 8px;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .tablet-layout {
+    --header-bg: #1f2937;
+    --sidebar-bg: #1f2937;
+    --main-bg: #111827;
+    --border-color: #374151;
+    --toggle-bg: #1f2937;
+    --toggle-color: #9ca3af;
+    --toggle-hover-bg: #374151;
+    --toggle-hover-color: #f3f4f6;
+  }
+}
+
+/* Portrait mode optimization */
+@media screen and (orientation: portrait) {
+  .tablet-sidebar {
+    --sidebar-width: 280px;
+  }
+}
+
+/* Landscape mode optimization */
+@media screen and (orientation: landscape) {
+  .tablet-sidebar {
+    --sidebar-width: 320px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .tablet-sidebar,
+  .tablet-toggle-icon {
+    transition: none;
+  }
+}
+
+/* Hide scrollbar for webkit browsers */
+.tablet-main::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.tablet-main {
+  scrollbar-width: none;
+}

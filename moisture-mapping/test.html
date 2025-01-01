@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moisture Mapping Test</title>
+    <!-- Three.js -->
+    <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.157.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Material Icons and Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <!-- Animate.css for additional animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Previous styles remain the same -->
+    <style>
+        /* Additional styles for stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-unit);
+            padding: var(--spacing-unit);
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .latest-reading {
+            margin-top: var(--spacing-unit);
+            padding: var(--spacing-unit);
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .latest-reading h4 {
+            margin: 0 0 var(--spacing-unit) 0;
+            color: var(--text-secondary);
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-unit);
+            padding: var(--spacing-unit);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-unit);
+        }
+
+        .message.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success-color);
+        }
+
+        .message.error {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--error-color);
+        }
+
+        .message.warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+
+        .message.info {
+            background-color: rgba(25, 118, 210, 0.1);
+            color: var(--primary-color);
+        }
+
+        .capture-success {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+            color: var(--success-color);
+        }
+
+        /* Previous styles remain the same */
+    </style>
+</head>
+<!-- Previous body content remains the same -->
+<body>
+    <!-- Previous body content -->
+    <!-- Previous script content -->
+</body>
+</html>

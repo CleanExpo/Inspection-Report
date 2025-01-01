@@ -1,0 +1,57 @@
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-background-hover);
+  z-index: 50;
+  transform-origin: 0 50%;
+  transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.scroll-progress.hidden {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.1s ease-out;
+}
+
+/* Increase height on hover for better interaction */
+.scroll-progress:hover {
+  height: 4px;
+}
+
+/* Adjust for mobile */
+@media (max-width: 640px) {
+  .scroll-progress {
+    height: 3px; /* Slightly larger for touch devices */
+  }
+  
+  .scroll-progress:hover {
+    height: 3px; /* Disable hover effect on mobile */
+  }
+}
+
+/* Reduce motion if user prefers */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress,
+  .scroll-progress-bar {
+    transition: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .scroll-progress {
+    background: var(--color-background-hover-dark, rgba(255, 255, 255, 0.1));
+  }
+  
+  .scroll-progress-bar {
+    background: var(--color-primary-dark, var(--color-primary));
+  }
+}

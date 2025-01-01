@@ -1,0 +1,163 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  role          String         @default("VIEWER")  // ADMIN, TECHNICIAN, VIEWER
+  firstName     String?
+  lastName      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+
+  @@index([email])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+model Client {
+  id              String       @id @default(uuid())
+  name            String
+  email           String       @unique
+  phone           String
+  address         String
+  company         String?
+  abn             String?
+  preferredContact String?
+  notes           String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  inspections     MoistureData[]
+
+  @@index([email])
+  @@index([phone])
+}
+
+model MoistureData {
+  id                 String            @id @default(uuid())
+  jobNumber          String            @unique
+  clientId           String
+  client             Client            @relation(fields: [clientId], references: [id])
+  clientName         String?
+  jobAddress         String?
+  status             String            @default("PENDING")
+  priority           String?
+  category           String?
+  floorPlan          String?
+  totalEquipmentPower Float?
+  notes              String?
+  readings           MoistureReading[]
+  equipment          Equipment[]
+  annotations        Annotation[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@index([jobNumber])
+  @@index([clientId])
+}
+
+model MoistureReading {
+  id            String       @id @default(uuid())
+  jobNumber     String
+  value         Float
+  locationX     Float
+  locationY     Float
+  material      String?
+  timestamp     DateTime     @default(now())
+  inspectionDay Int?
+  notes         String?
+  moistureData  MoistureData @relation(fields: [jobNumber], references: [jobNumber], onDelete: Cascade)
+
+  @@index([jobNumber])
+}
+
+model Equipment {
+  id                String       @id @default(uuid())
+  jobNumber         String
+  type              String
+  positionX         Float
+  positionY         Float
+  rotation          Float?
+  operationalStatus String?
+  power             Float?
+  mode              String?
+  targetHumidity    Float?
+  fanSpeed          Float?
+  temperature       Float?
+  moistureData      MoistureData @relation(fields: [jobNumber], references: [jobNumber], onDelete: Cascade)
+
+  @@index([jobNumber])
+}
+
+model Annotation {
+  id        String       @id @default(uuid())
+  jobNumber String
+  type      String
+  content   String
+  locationX Float
+  locationY Float
+  timestamp DateTime     @default(now())
+  author    String?
+  moistureData MoistureData @relation(fields: [jobNumber], references: [jobNumber], onDelete: Cascade)
+
+  @@index([jobNumber])
+}
+
+// Version control for moisture data
+model MoistureDataVersion {
+  id        String   @id @default(uuid())
+  jobNumber String
+  data      Json     // Stores the complete moisture data state
+  metadata  Json     // Stores version metadata (type, notes, etc.)
+  timestamp DateTime @default(now())
+
+  @@index([jobNumber])
+}
+
+model AdminDetails {
+  id            String   @id @default(uuid())
+  contactName   String
+  email         String
+  address       String
+  primaryPhone  String
+  otherPhone    String?
+  timeOnSite    String?
+  timeOffSite   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+}
+
+// Auto-save configuration
+model AutoSaveConfig {
+  id            String   @id @default(uuid())
+  jobNumber     String   @unique
+  enabled       Boolean  @default(true)
+  interval      Int      @default(5)  // minutes
+  maxVersions   Int      @default(10)
+  includeDrafts Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+
+  @@index([jobNumber])
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <path
+    d="M256 64
+       C256 64 384 256 384 320
+       C384 384 320 448 256 448
+       C192 448 128 384 128 320
+       C128 256 256 64 256 64Z"
+    fill="#1976d2"
+  />
+</svg>

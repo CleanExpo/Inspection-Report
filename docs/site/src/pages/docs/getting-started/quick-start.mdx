@@ -1,0 +1,56 @@
+import DocsLayout from '../../../layouts/DocsLayout';
+
+export default ({ children }) => <DocsLayout>{children}</DocsLayout>;
+
+# Quick Start Guide
+
+Welcome to the Inspection Report documentation! This guide will help you get started quickly with the system.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- Node.js 16.x or later installed
+- npm or yarn package manager
+- Git for version control
+
+## Installation Steps
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-org/inspection-report.git
+cd inspection-report
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration settings.
+
+## Running the Application
+
+Start the development server:
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` in your browser to see the application running.
+
+## Key Features
+
+- **PDF Export**: Generate professional inspection reports in PDF format
+- **HTML Export**: Create web-friendly versions of your reports
+- **Markdown Support**: Write and export documentation in Markdown
+- **Batch Processing**: Handle multiple documents efficiently
+
+## Next Steps
+
+- [Installation Guide](/docs/getting-started/installation) - Detailed installation instructions
+- [Export Features](/docs/features/export) - Learn about export capabilities
+- [Optimization Guide](/docs/features/optimization) - Optimize your workflow

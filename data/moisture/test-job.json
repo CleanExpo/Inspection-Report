@@ -1,0 +1,60 @@
+{
+  "sketchData": {
+    "id": "moisture_test-job_1702710000000",
+    "jobId": "test-job",
+    "floorPlan": "",
+    "moistureReadings": [
+      {
+        "value": 100,
+        "location": "Bedroom 1",
+        "material": "carpet",
+        "notes": "Main Bedroom",
+        "timestamp": "2024-12-16T22:11:00.697Z",
+        "inspectionDay": 1,
+        "id": "reading_1734387064921_idd45b24h"
+      },
+      {
+        "value": 100,
+        "location": "Bedroom 1",
+        "material": "carpet",
+        "notes": "Main Bedroom",
+        "timestamp": "2024-12-16T22:11:03.501Z",
+        "inspectionDay": 1,
+        "id": "reading_1734387064983_ki9zkzjuz"
+      }
+    ],
+    "equipment": [],
+    "annotations": [],
+    "lastUpdated": "2024-12-16T22:11:04.983Z"
+  },
+  "readingHistory": [
+    {
+      "date": "2024-12-16",
+      "readings": [
+        {
+          "value": 100,
+          "location": "Bedroom 1",
+          "material": "carpet",
+          "notes": "Main Bedroom",
+          "timestamp": "2024-12-16T22:11:00.697Z",
+          "inspectionDay": 1,
+          "id": "reading_1734387064921_idd45b24h"
+        },
+        {
+          "value": 100,
+          "location": "Bedroom 1",
+          "material": "carpet",
+          "notes": "Main Bedroom",
+          "timestamp": "2024-12-16T22:11:03.501Z",
+          "inspectionDay": 1,
+          "id": "reading_1734387064983_ki9zkzjuz"
+        }
+      ],
+      "averageValue": 100,
+      "maxValue": 100,
+      "minValue": 100,
+      "dryLocations": 0,
+      "totalLocations": 2
+    }
+  ]
+}

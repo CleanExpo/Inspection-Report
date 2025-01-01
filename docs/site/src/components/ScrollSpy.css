@@ -1,0 +1,120 @@
+.scroll-spy {
+  position: sticky;
+  top: var(--header-height, 64px);
+  max-height: calc(100vh - var(--header-height, 64px));
+  overflow-y: auto;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.scroll-spy::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scroll-spy::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-spy::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 2px;
+}
+
+.scroll-spy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.scroll-spy-item {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.scroll-spy-item.level-1 {
+  padding-left: 1rem;
+}
+
+.scroll-spy-item.level-2 {
+  padding-left: 2rem;
+}
+
+.scroll-spy-link {
+  display: block;
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text-light);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.scroll-spy-link:hover {
+  color: var(--color-text);
+  background: var(--color-background-hover);
+  border-radius: 0.25rem;
+}
+
+.scroll-spy-item.active .scroll-spy-link {
+  color: var(--color-primary);
+  border-left-color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* Smooth transition for active indicator */
+.scroll-spy-item {
+  position: relative;
+}
+
+.scroll-spy-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.scroll-spy-item.active::before {
+  transform: scaleY(1);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .scroll-spy {
+    position: static;
+    max-height: none;
+    padding: 0.5rem;
+  }
+
+  .scroll-spy-item {
+    margin: 0.25rem 0;
+  }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-spy-link,
+  .scroll-spy-item::before {
+    transition: none;
+  }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .scroll-spy-link {
+    color: var(--color-text-light-dark, #a0aec0);
+  }
+
+  .scroll-spy-link:hover {
+    background: var(--color-background-hover-dark, rgba(255, 255, 255, 0.1));
+  }
+
+  .scroll-spy-item.active .scroll-spy-link {
+    color: var(--color-primary-dark, var(--color-primary));
+    border-left-color: var(--color-primary-dark, var(--color-primary));
+  }
+}

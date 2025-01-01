@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sketch - Water Damage Inspection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="moisture-mapping">
+        <!-- Left Panel -->
+        <div class="room-info">
+            <div class="header">
+                <h2>Sketch</h2>
+                <div class="voice-controls">
+                    <button id="start-voice" class="voice-button" title="Start voice commands">
+                        <span class="icon">🎤</span>
+                        <span class="status">Start Voice</span>
+                    </button>
+                    <button id="show-help" class="help-button" title="Show help">
+                        <span class="icon">?</span>
+                        <span>Help</span>
+                    </button>
+                </div>
+            </div>
+
+            <form id="room-info-form">
+                <div class="form-row">
+                    <label for="room-name">Room:</label>
+                    <input type="text" id="room-name" name="room-name" required placeholder="e.g., Lounge Room">
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-row dimensions">
+                    <label>Size:</label>
+                    <input type="number" id="room-width" name="room-width" step="0.1" min="0.1" max="50" required placeholder="Width">
+                    <span>×</span>
+                    <input type="number" id="room-length" name="room-length" step="0.1" min="0.1" max="50" required placeholder="Length">
+                    <span>×</span>
+                    <input type="number" id="room-height" name="room-height" step="0.1" min="0.1" max="10" required placeholder="Height">
+                    <span>m</span>
+                    <div class="error-message"></div>
+                </div>
+                <div class="form-row">
+                    <label for="floor-type">Floor Type:</label>
+                    <select id="floor-type" name="floor-type" required>
+                        <option value="">Select Floor Type</option>
+                        <option value="carpet">Carpet</option>
+                        <option value="timber">Timber</option>
+                        <option value="tile">Tile</option>
+                        <option value="vinyl">Vinyl</option>
+                        <option value="concrete">Concrete</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="error-message"></div>
+                </div>
+                <div id="custom-floor-type" class="custom-input">
+                    <input type="text" name="custom-floor-type" placeholder="Enter custom floor type">
+                </div>
+                <div class="form-row">
+                    <label for="subfloor-type">Subfloor Type:</label>
+                    <select id="subfloor-type" name="subfloor-type" required>
+                        <option value="">Select Subfloor Type</option>
+                        <option value="concrete">Concrete</option>
+                        <option value="timber">Timber</option>
+                        <option value="particleboard">Particleboard</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="error-message"></div>
+                </div>
+                <div id="custom-subfloor-type" class="custom-input">
+                    <input type="text" name="custom-subfloor-type" placeholder="Enter custom subfloor type">
+                </div>
+                <div class="form-row">
+                    <button type="submit" class="primary">Update Room Info</button>
+                </div>
+            </form>
+
+            <!-- Equipment Section -->
+            <div class="equipment-section">
+                <h3>Equipment</h3>
+                <div class="form-row">
+                    <label for="meter-type">Moisture Meter:</label>
+                    <select id="meter-type" name="meter-type">
+                        <option value="">Select Meter Type</option>
+                        <option value="protimeter">Protimeter</option>
+                        <option value="tramex">Tramex</option>
+                        <option value="gann">Gann Hydromette</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="calibration-date">Last Calibration:</label>
+                    <input type="date" id="calibration-date" name="calibration-date">
+                </div>
+                <div class="form-row">
+                    <label for="meter-mode">Meter Mode:</label>
+                    <select id="meter-mode" name="meter-mode">
+                        <option value="survey">Survey Mode</option>
+                        <option value="measure">Measure Mode</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Moisture Legend -->
+            <div class="moisture-legend">
+                <h3>IICRC S500 Moisture Levels</h3>
+                <div class="legend-item">
+                    <span class="color-dot dry"></span>
+                    <span>Dry (≤15%) - No action required</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-dot moderate"></span>
+                    <span>Moderate (16-30%) - Monitor required</span>
+                </div>
+                <div class="legend-item">
+                    <span class="color-dot wet"></span>
+                    <span>Wet (>30%) - Action required</span>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="data-management">
+                <h3>Data Management</h3>
+                <div class="button-group">
+                    <button id="save-data" class="secondary">Save Layout</button>
+                    <button id="load-data" class="secondary">Load Layout</button>
+                    <button id="export-data" class="secondary">Export Data</button>
+                </div>
+                <input type="file" id="load-file" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="sketch-area">
+            <!-- Canvas Section -->
+            <div class="canvas-section">
+                <!-- Canvas Controls -->
+                <div class="canvas-controls">
+                    <div class="control-group">
+                        <button id="undo" class="icon-button" title="Undo (or say 'undo')">↩</button>
+                        <button id="redo" class="icon-button" title="Redo (or say 'redo')">↪</button>
+                    </div>
+                    <div class="control-group">
+                        <button id="toggle-grid" class="icon-button" title="Toggle Grid">⊞</button>
+                        <div class="scale-control">
+                            <label for="scale">Scale:</label>
+                            <input type="range" id="scale" min="10" max="100" value="50">
+                            <span id="scale-value">1:50</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Canvas -->
+                <div class="canvas-wrapper">
+                    <canvas id="sketch-canvas"></canvas>
+                    <div class="touch-instructions">
+                        <p>Pinch to zoom • Double-tap to reset view</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools Section -->
+            <div class="tools-section">
+                <div class="sketch-tools">
+                    <div class="tool-group">
+                        <h4>Drawing Tools</h4>
+                        <div class="tool-group-buttons">
+                            <button id="mode-wall" class="tool-button active">Wall</button>
+                            <button id="mode-door" class="tool-button">Door</button>
+                            <button id="mode-window" class="tool-button">Window</button>
+                        </div>
+                    </div>
+                    <div class="tool-group">
+                        <h4>Advanced Tools</h4>
+                        <div class="tool-group-buttons">
+                            <button id="mode-curve" class="tool-button">Curve</button>
+                            <button id="mode-freehand" class="tool-button">Freehand</button>
+                        </div>
+                    </div>
+                    <div class="tool-group">
+                        <h4>Measurement Tools</h4>
+                        <div class="tool-group-buttons">
+                            <button id="mode-moisture" class="tool-button">Moisture</button>
+                            <button id="mode-measure" class="tool-button">Measure</button>
+                        </div>
+                    </div>
+                    <div class="tool-group">
+                        <h4>Actions</h4>
+                        <div class="tool-group-buttons">
+                            <button id="clear-sketch" class="tool-button">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="help-overlay.js"></script>
+    <script src="app.js"></script>
+    <script src="sketch.js"></script>
+</body>
+</html>

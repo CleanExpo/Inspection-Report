@@ -1,0 +1,125 @@
+:root {
+  /* Default light theme variables */
+  --color-primary: #0066cc;
+  --color-secondary: #6c757d;
+  --color-background: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-text: #212529;
+  --color-text-secondary: #6c757d;
+  --color-border: #dee2e6;
+  --color-accent: #0066cc;
+  --color-error: #dc3545;
+  --color-warning: #ffc107;
+  --color-success: #28a745;
+  --color-info: #17a2b8;
+
+  /* Theme transitions */
+  --theme-transition-timing: 200ms;
+  --theme-transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
+  --theme-transition: background-color var(--theme-transition-timing) var(--theme-transition-curve),
+                     color var(--theme-transition-timing) var(--theme-transition-curve),
+                     border-color var(--theme-transition-timing) var(--theme-transition-curve),
+                     box-shadow var(--theme-transition-timing) var(--theme-transition-curve),
+                     transform var(--theme-transition-timing) var(--theme-transition-curve),
+                     opacity var(--theme-transition-timing) var(--theme-transition-curve);
+}
+
+/* Optimize animations */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --theme-transition-timing: 0ms;
+  }
+}
+
+/* Apply transitions to interactive elements */
+body,
+button,
+input,
+select,
+textarea,
+a,
+.btn,
+.card,
+.surface,
+[class*="theme-"],
+[class*="color-"] {
+  transition: var(--theme-transition);
+  will-change: auto;
+}
+
+/* Hardware acceleration for smoother transitions */
+.theme-transition-active {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Base styles using theme variables */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Enhanced focus states */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
+/* Theme-aware component base styles */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.surface {
+  background-color: var(--color-surface);
+}
+
+.border {
+  border-color: var(--color-border);
+}
+
+/* Focus states */
+:focus-visible {
+  outline-color: var(--color-primary);
+}
+
+/* Selection styles */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}

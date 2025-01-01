@@ -1,0 +1,186 @@
+.navigation {
+  position: relative;
+  width: 100%;
+}
+
+.navContent {
+  width: 100%;
+  height: 100%;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin: 0.25rem 0;
+}
+
+.navItemContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navLink {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navLink:hover {
+  background-color: var(--surface);
+  color: var(--primary);
+}
+
+.activeLink {
+  color: var(--primary);
+  background-color: var(--surface);
+  font-weight: 500;
+}
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+
+.expandButton:hover {
+  color: var(--primary);
+}
+
+.expandButton.expanded svg {
+  transform: rotate(180deg);
+}
+
+.subNav {
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0.25rem 0;
+}
+
+/* Level-specific styles */
+.level0 > .navItemContent > .navLink {
+  font-weight: 500;
+}
+
+.level1 {
+  margin-left: 1rem;
+}
+
+.level2 {
+  margin-left: 2rem;
+}
+
+/* Mobile menu button */
+.mobileMenuButton {
+  display: none;
+  padding: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 20px;
+}
+
+.hamburgerLine {
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.mobileMenuButton.open .hamburgerLine:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.mobileMenuButton.open .hamburgerLine:nth-child(2) {
+  opacity: 0;
+}
+
+.mobileMenuButton.open .hamburgerLine:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .mobileMenuButton {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .navContent {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--background);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    padding: 4rem 1rem 1rem;
+    transition: left 0.3s ease-in-out;
+    overflow-y: auto;
+    z-index: 90;
+  }
+
+  .navContent.open {
+    left: 0;
+  }
+
+  .navItem {
+    margin: 0.5rem 0;
+  }
+
+  .navLink {
+    padding: 0.75rem 1rem;
+  }
+
+  .subNav {
+    padding-left: 0.5rem;
+  }
+
+  /* Adjust level indentation for mobile */
+  .level1 {
+    margin-left: 0.5rem;
+  }
+
+  .level2 {
+    margin-left: 1rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .navContent {
+    background-color: var(--background);
+  }
+
+  .hamburgerLine {
+    background-color: var(--text-primary);
+  }
+
+  .navLink:hover {
+    background-color: var(--surface);
+  }
+}
