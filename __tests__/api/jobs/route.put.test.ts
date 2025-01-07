@@ -1,15 +1,11 @@
 import { PUT } from '../../../app/api/jobs/route';
-import { JobService } from '../../../app/services/jobService';
-import { jest, expect, describe, it, beforeEach } from '@jest/globals';
+import { JobService, type Job } from '../../../app/services/jobService';
 import type { JobStatus, JobPriority } from '../../../app/types/client';
-
-// Mock types
-type MockExists = jest.MockedFunction<(jobNumber: string) => Promise<boolean>>;
-type MockUpdateJob = jest.MockedFunction<typeof JobService.updateJob>;
+import { jest, expect, describe, it, beforeEach } from '@jest/globals';
 
 // Mock JobService
-const mockExists = jest.fn() as MockExists;
-const mockUpdateJob = jest.fn() as MockUpdateJob;
+const mockExists = jest.fn() as jest.MockedFunction<typeof JobService.exists>;
+const mockUpdateJob = jest.fn() as jest.MockedFunction<typeof JobService.updateJob>;
 
 jest.mock('../../../app/services/jobService', () => ({
     JobService: {
@@ -18,15 +14,36 @@ jest.mock('../../../app/services/jobService', () => ({
     }
 }));
 
+/**
+ * Tests for the Jobs API PUT endpoint
+ * API-1 Segment: Job Management Base
+ * Covers:
+ * - Job updates
+ * - Validation
+ * - Error handling
+ * - Response formatting
+ */
 describe('Jobs API - PUT Endpoint', () => {
     const mockJobNumber = '2024-0101-001';
-    const mockRequest = (jobNumber: string, body: any) => {
-        const url = new URL(`http://localhost/api/jobs/${jobNumber}`);
-        return new Request(url, {
+    const mockRequest = (body: any) => new Request(
+        `http://localhost/api/jobs/${mockJobNumber}`,
+        {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-        });
+        }
+    );
+
+    const mockJobData: Job = {
+        id: '1',
+        jobNumber: mockJobNumber,
+        clientId: '123',
+        status: 'PENDING' as JobStatus,
+        priority: 'HIGH' as JobPriority,
+        category: 'WATER_DAMAGE',
+        description: 'Test job',
+        createdAt: new Date(),
+        updatedAt: new Date()
     };
 
     beforeEach(() => {
@@ -35,58 +52,40 @@ describe('Jobs API - PUT Endpoint', () => {
 
     describe('PUT /api/jobs/:jobNumber', () => {
         it('should update a job with valid data', async () => {
-            // Mock job service
+            // Mock job exists
             mockExists.mockResolvedValue(true);
+            
+            // Mock successful update
             mockUpdateJob.mockResolvedValue({
-                jobNumber: mockJobNumber,
+                ...mockJobData,
                 status: 'IN_PROGRESS',
-                priority: 'HIGH',
-                category: 'WATER_DAMAGE',
-                description: 'Updated job'
-            } as any);
+                description: 'Updated description'
+            });
 
-            const response = await PUT(mockRequest(mockJobNumber, {
-                status: 'IN_PROGRESS' as JobStatus,
-                priority: 'HIGH' as JobPriority,
-                category: 'WATER_DAMAGE',
-                description: 'Updated job'
+            const response = await PUT(mockRequest({
+                status: 'IN_PROGRESS',
+                description: 'Updated description'
             }));
             const data = await response.json();
 
             expect(response.status).toBe(200);
             expect(data.success).toBe(true);
             expect(data.jobNumber).toBe(mockJobNumber);
-
-            // Verify service was called with correct parameters
-            expect(JobService.exists).toHaveBeenCalledWith(mockJobNumber);
-            expect(mockUpdateJob).toHaveBeenCalledWith(mockJobNumber, {
-                status: 'IN_PROGRESS',
-                priority: 'HIGH',
-                category: 'WATER_DAMAGE',
-                description: 'Updated job'
-            });
-        });
-
-        it('should reject request with missing job number', async () => {
-            const response = await PUT(mockRequest('', {}));
-            const data = await response.json();
-
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.errors).toContainEqual(
+            expect(mockUpdateJob).toHaveBeenCalledWith(
+                mockJobNumber,
                 expect.objectContaining({
-                    field: 'jobNumber',
-                    message: expect.stringContaining('required')
+                    status: 'IN_PROGRESS',
+                    description: 'Updated description'
                 })
             );
         });
 
-        it('should reject invalid job number', async () => {
+        it('should reject request for non-existent job', async () => {
             // Mock job does not exist
             mockExists.mockResolvedValue(false);
 
-            const response = await PUT(mockRequest('invalid-job', {
-                status: 'IN_PROGRESS' as JobStatus
+            const response = await PUT(mockRequest({
+                status: 'IN_PROGRESS'
             }));
             const data = await response.json();
 
@@ -98,15 +97,15 @@ describe('Jobs API - PUT Endpoint', () => {
                     message: expect.stringContaining('not found')
                 })
             );
+            expect(mockUpdateJob).not.toHaveBeenCalled();
         });
 
-        it('should handle validation errors', async () => {
-            // Mock job exists but update fails
+        it('should reject invalid job status', async () => {
+            // Mock job exists
             mockExists.mockResolvedValue(true);
-            mockUpdateJob.mockRejectedValue(new Error('Invalid status'));
 
-            const response = await PUT(mockRequest(mockJobNumber, {
-                status: 'INVALID_STATUS' as JobStatus
+            const response = await PUT(mockRequest({
+                status: 'INVALID_STATUS'
             }));
             const data = await response.json();
 
@@ -115,17 +114,21 @@ describe('Jobs API - PUT Endpoint', () => {
             expect(data.errors).toContainEqual(
                 expect.objectContaining({
                     field: 'general',
-                    message: expect.any(String)
+                    message: expect.stringContaining('Validation failed')
                 })
             );
+            expect(mockUpdateJob).not.toHaveBeenCalled();
         });
 
         it('should handle service errors', async () => {
+            // Mock job exists
+            mockExists.mockResolvedValue(true);
+            
             // Mock service error
-            mockExists.mockRejectedValue(new Error('DB Error'));
+            mockUpdateJob.mockRejectedValue(new Error('Database error'));
 
-            const response = await PUT(mockRequest(mockJobNumber, {
-                status: 'IN_PROGRESS' as JobStatus
+            const response = await PUT(mockRequest({
+                status: 'IN_PROGRESS'
             }));
             const data = await response.json();
 
@@ -137,6 +140,29 @@ describe('Jobs API - PUT Endpoint', () => {
                     message: expect.any(String)
                 })
             );
+        });
+
+        it('should handle missing job number in URL', async () => {
+            const response = await PUT(new Request(
+                'http://localhost/api/jobs/',
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'IN_PROGRESS' })
+                }
+            ));
+            const data = await response.json();
+
+            expect(response.status).toBe(400);
+            expect(data.success).toBe(false);
+            expect(data.errors).toContainEqual(
+                expect.objectContaining({
+                    field: 'jobNumber',
+                    message: expect.stringContaining('required')
+                })
+            );
+            expect(mockExists).not.toHaveBeenCalled();
+            expect(mockUpdateJob).not.toHaveBeenCalled();
         });
     });
 });

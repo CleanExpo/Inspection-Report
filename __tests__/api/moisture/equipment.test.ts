@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GET, POST, PUT } from '../../../app/api/moisture/equipment';
-import prisma from '../../../lib/prisma';
+import { prisma } from '../../../app/lib/prisma';
 import { PrismaClient } from '@prisma/client';
 
 // Mock NextResponse

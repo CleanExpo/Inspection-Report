@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2025-01-05T21:37:58.923Z",
+    "type": "warning",
+    "message": "Resource warning: Memory usage high: 70.51075668195767%"
+  },
+  {
+    "timestamp": "2025-01-05T21:52:42.292Z",
+    "type": "warning",
+    "message": "Resource warning: CPU usage high: 67.6900515858372%"
+  }
+]

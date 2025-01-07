@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { GET, POST, PUT, DELETE, PATCH } from '../../../app/api/moisture/floorplan';
-import prisma from '../../../lib/prisma';
+import { prisma } from '../../../app/lib/prisma';
 
 // Mock Prisma client
 jest.mock('../../../lib/prisma', () => ({

@@ -1,164 +1,186 @@
 import { POST } from '../../../app/api/validate/fields/route';
 import { jest, expect, describe, it } from '@jest/globals';
-import { JobStatus, JobPriority } from '../../../app/types/client';
+import { createRequest, assertSuccessResponse, assertErrorResponse } from '../../utils/testUtils';
 
+/**
+ * Tests for the Job Fields Validation API
+ * API-1 Segment: Job Fields Validation
+ * Covers:
+ * - Field validation
+ * - Format validation
+ * - Business rules
+ * - Error handling
+ */
 describe('Job Fields Validation API', () => {
-    const mockRequest = (body: any) => new Request('http://localhost/api/validate/fields', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-
     describe('POST /api/validate/fields', () => {
-        it('should validate valid job fields', async () => {
-            const response = await POST(mockRequest({
-                status: 'IN_PROGRESS' as JobStatus,
-                priority: 'HIGH' as JobPriority,
+        it('should validate valid fields', async () => {
+            const response = await POST(createRequest.post('/api/validate/fields', {
+                status: 'PENDING',
+                priority: 'HIGH',
                 category: 'WATER_DAMAGE',
                 description: 'Valid description'
             }));
-            const data = await response.json();
-
-            expect(response.status).toBe(200);
-            expect(data.success).toBe(true);
+            const data = await assertSuccessResponse(response);
             expect(data.isValid).toBe(true);
-            expect(data.validatedFields).toEqual({
-                status: true,
-                priority: true,
-                category: true,
-                description: true
-            });
         });
 
-        it('should validate partial fields', async () => {
-            const response = await POST(mockRequest({
-                status: 'IN_PROGRESS' as JobStatus,
-                category: 'WATER_DAMAGE'
-            }));
-            const data = await response.json();
-
-            expect(response.status).toBe(200);
-            expect(data.success).toBe(true);
+        it('should accept empty request (no fields to validate)', async () => {
+            const response = await POST(createRequest.post('/api/validate/fields', {}));
+            const data = await assertSuccessResponse(response);
             expect(data.isValid).toBe(true);
-            expect(data.validatedFields).toEqual({
-                status: true,
-                category: true
-            });
         });
 
-        it('should reject invalid status', async () => {
-            const response = await POST(mockRequest({
-                status: 'INVALID_STATUS'
-            }));
-            const data = await response.json();
+        describe('Status Validation', () => {
+            it('should validate valid status', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    status: 'IN_PROGRESS'
+                }));
+                const data = await assertSuccessResponse(response);
+                expect(data.isValid).toBe(true);
+            });
 
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
+            it('should reject invalid status', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    status: 'INVALID_STATUS'
+                }));
+                await assertErrorResponse(response, 400, {
                     field: 'status',
-                    message: expect.stringContaining('Invalid status')
-                })
-            );
+                    messageIncludes: 'Must be one of'
+                });
+            });
+
+            it('should validate all valid statuses', async () => {
+                const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED'];
+                for (const status of validStatuses) {
+                    const response = await POST(createRequest.post('/api/validate/fields', { status }));
+                    const data = await assertSuccessResponse(response);
+                    expect(data.isValid).toBe(true);
+                }
+            });
         });
 
-        it('should reject invalid priority', async () => {
-            const response = await POST(mockRequest({
-                priority: 'INVALID_PRIORITY'
-            }));
-            const data = await response.json();
+        describe('Priority Validation', () => {
+            it('should validate valid priority', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    priority: 'MEDIUM'
+                }));
+                const data = await assertSuccessResponse(response);
+                expect(data.isValid).toBe(true);
+            });
 
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
+            it('should reject invalid priority', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    priority: 'INVALID_PRIORITY'
+                }));
+                await assertErrorResponse(response, 400, {
                     field: 'priority',
-                    message: expect.stringContaining('Invalid priority')
-                })
-            );
+                    messageIncludes: 'Must be one of'
+                });
+            });
+
+            it('should validate all valid priorities', async () => {
+                const validPriorities = ['LOW', 'MEDIUM', 'HIGH'];
+                for (const priority of validPriorities) {
+                    const response = await POST(createRequest.post('/api/validate/fields', { priority }));
+                    const data = await assertSuccessResponse(response);
+                    expect(data.isValid).toBe(true);
+                }
+            });
         });
 
-        it('should reject invalid category', async () => {
-            const response = await POST(mockRequest({
-                category: 'INVALID_CATEGORY'
-            }));
-            const data = await response.json();
+        describe('Category Validation', () => {
+            it('should validate valid category', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    category: 'WATER_DAMAGE'
+                }));
+                const data = await assertSuccessResponse(response);
+                expect(data.isValid).toBe(true);
+            });
 
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
+            it('should reject invalid category', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    category: 'INVALID_CATEGORY'
+                }));
+                await assertErrorResponse(response, 400, {
                     field: 'category',
-                    message: expect.stringContaining('Invalid category')
-                })
-            );
+                    messageIncludes: 'Must be one of'
+                });
+            });
+
+            it('should validate all valid categories', async () => {
+                const validCategories = ['WATER_DAMAGE', 'FIRE_DAMAGE', 'MOLD', 'CLEANING'];
+                for (const category of validCategories) {
+                    const response = await POST(createRequest.post('/api/validate/fields', { category }));
+                    const data = await assertSuccessResponse(response);
+                    expect(data.isValid).toBe(true);
+                }
+            });
         });
 
-        it('should reject empty description', async () => {
-            const response = await POST(mockRequest({
-                description: ''
-            }));
-            const data = await response.json();
+        describe('Description Validation', () => {
+            it('should validate valid description', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    description: 'Valid description'
+                }));
+                const data = await assertSuccessResponse(response);
+                expect(data.isValid).toBe(true);
+            });
 
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
+            it('should reject description exceeding max length', async () => {
+                const longDescription = 'a'.repeat(1001); // 1001 characters
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    description: longDescription
+                }));
+                await assertErrorResponse(response, 400, {
                     field: 'description',
-                    message: expect.stringContaining('Description cannot be empty')
-                })
-            );
+                    messageIncludes: 'must not exceed 1000 characters'
+                });
+            });
+
+            it('should accept empty description', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    description: ''
+                }));
+                const data = await assertSuccessResponse(response);
+                expect(data.isValid).toBe(true);
+            });
         });
 
-        it('should reject description exceeding max length', async () => {
-            const response = await POST(mockRequest({
-                description: 'a'.repeat(1001)
-            }));
-            const data = await response.json();
-
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
-                    field: 'description',
-                    message: expect.stringContaining('Description too long')
-                })
-            );
+        describe('Multiple Field Validation', () => {
+            it('should report all invalid fields', async () => {
+                const response = await POST(createRequest.post('/api/validate/fields', {
+                    status: 'INVALID_STATUS',
+                    priority: 'INVALID_PRIORITY',
+                    category: 'INVALID_CATEGORY',
+                    description: 'a'.repeat(1001)
+                }));
+                const data = await response.json();
+                expect(data.success).toBe(false);
+                expect(data.errors).toHaveLength(4);
+                expect(data.errors).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ field: 'status' }),
+                    expect.objectContaining({ field: 'priority' }),
+                    expect.objectContaining({ field: 'category' }),
+                    expect.objectContaining({ field: 'description' })
+                ]));
+            });
         });
 
-        it('should handle validation errors', async () => {
-            const response = await POST(mockRequest({
-                status: null,
-                priority: undefined,
-                category: 123,
-                description: {}
-            }));
-            const data = await response.json();
-
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toHaveLength(4);
-        });
-
-        it('should handle empty request', async () => {
-            const response = await POST(mockRequest({}));
-            const data = await response.json();
-
-            expect(response.status).toBe(400);
-            expect(data.success).toBe(false);
-            expect(data.isValid).toBe(false);
-            expect(data.errors).toContainEqual(
-                expect.objectContaining({
+        describe('Error Handling', () => {
+            it('should handle invalid JSON', async () => {
+                const response = await POST(new Request(
+                    'http://localhost/api/validate/fields',
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: 'invalid json'
+                    }
+                ));
+                await assertErrorResponse(response, 500, {
                     field: 'general',
-                    message: expect.stringContaining('No fields to validate')
-                })
-            );
+                    messageIncludes: 'Failed to process request'
+                });
+            });
         });
     });
 });

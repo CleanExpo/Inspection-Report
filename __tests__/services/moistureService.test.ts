@@ -1,188 +1,327 @@
-import { moistureService } from '@/services/moistureService';
-import { readingCache } from '@/utils/cache';
-import { MoistureReading, SketchData, DailyReadings } from '@/types/moisture';
+import { describe, expect, test, beforeEach, jest } from '@jest/globals';
+import { moistureService } from '../../app/services/moistureService';
+import { prisma } from '../../app/lib/prisma';
+import { createMockPrisma, mockSuccess } from '../setup';
+import type { MoistureReading, MoistureMap } from '../../app/types/moisture';
+
+// Mock Prisma
+jest.mock('../../app/lib/prisma', () => ({
+  prisma: createMockPrisma(),
+}));
 
 describe('MoistureService', () => {
-  // Mock data
-  const mockReading: MoistureReading = {
-    id: 'reading-1',
-    position: { x: 100, y: 100 },
-    value: 15,
-    materialType: 'drywall',
-    timestamp: new Date().toISOString(),
-  };
-
-  const mockSketchData: SketchData = {
-    room: {
-      id: 'room-1',
-      width: 500,
-      height: 300,
-      dimensions: { width: '20', height: '15', unit: 'ft' },
-    },
-    damageAreas: [],
-    equipment: [],
-    moistureReadings: [mockReading],
-  };
-
-  const mockDailyReadings: DailyReadings = {
-    date: new Date().toISOString().split('T')[0],
-    readings: [mockReading],
-  };
-
   beforeEach(() => {
-    // Clear localStorage and cache before each test
-    localStorage.clear();
-    readingCache.clear();
-    jest.useFakeTimers();
+    jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
+  const mockReading: MoistureReading = {
+    id: '1',
+    mapId: '1',
+    value: 15.5,
+    materialType: 'Drywall',
+    location: { x: 100, y: 200 },
+    notes: 'Test reading',
+    timestamp: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const mockMap: MoistureMap = {
+    id: '1',
+    jobId: '123',
+    name: 'Test Map',
+    layout: {
+      walls: [
+        { start: { x: 0, y: 0 }, end: { x: 100, y: 0 } },
+        { start: { x: 100, y: 0 }, end: { x: 100, y: 100 } },
+      ],
+      doors: [
+        { position: { x: 50, y: 0 }, width: 30, height: 80 },
+      ],
+      windows: [
+        { position: { x: 75, y: 20 }, width: 40, height: 40 },
+      ],
+    },
+    readings: [mockReading],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  describe('createMap', () => {
+    test('should create a new moisture map', async () => {
+      (prisma.moistureMap.create as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(mockMap)
+      );
+
+      const result = await moistureService.createMap({
+        jobId: '123',
+        name: 'Test Map',
+        layout: mockMap.layout,
+      });
+
+      expect(prisma.moistureMap.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          jobId: '123',
+          name: 'Test Map',
+          layout: expect.any(Object),
+        }),
+        include: {
+          readings: true,
+        },
+      });
+
+      expect(result).toEqual(mockMap);
+    });
+
+    test('should validate layout data', async () => {
+      await expect(moistureService.createMap({
+        jobId: '123',
+        name: 'Test Map',
+        layout: {
+          walls: [{ start: { x: 'invalid' } }], // Invalid coordinates
+        } as any,
+      })).rejects.toThrow('Invalid layout data');
+    });
   });
 
-  describe('Data Storage and Caching', () => {
-    it('saves and retrieves sketch data with caching', async () => {
-      await moistureService.saveSketchData('job-1', mockSketchData);
-      
-      // Check cache
-      expect(readingCache.get(mockReading.id)).toEqual(mockReading);
-      
-      // Check localStorage
-      const retrieved = await moistureService.getSketchData('job-1');
-      expect(retrieved).toEqual(mockSketchData);
-    });
+  describe('getMaps', () => {
+    test('should return all maps for a job', async () => {
+      (prisma.moistureMap.findMany as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess([mockMap])
+      );
 
-    it('saves and retrieves reading history with caching', async () => {
-      await moistureService.saveReadingHistory('job-1', [mockDailyReadings]);
-      
-      // Check cache
-      expect(readingCache.get(mockReading.id)).toEqual(mockReading);
-      
-      // Check localStorage
-      const retrieved = await moistureService.getReadingHistory('job-1');
-      expect(retrieved).toEqual([mockDailyReadings]);
-    });
+      const result = await moistureService.getMaps('123');
 
-    it('handles batch processing of readings', async () => {
-      // Set up initial data
-      await moistureService.saveSketchData('job-1', mockSketchData);
+      expect(prisma.moistureMap.findMany).toHaveBeenCalledWith({
+        where: { jobId: '123' },
+        include: {
+          readings: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
 
-      // Add new reading through batch processor
-      const newReading: MoistureReading = {
-        ...mockReading,
-        id: 'reading-2',
-      };
-      await moistureService.addReading('job-1', newReading);
-
-      // Fast-forward timers to trigger batch processing
-      jest.runAllTimers();
-      await Promise.resolve(); // Flush promises
-
-      // Check if reading was added
-      const updatedData = await moistureService.getSketchData('job-1');
-      expect(updatedData?.moistureReadings).toHaveLength(2);
-      expect(updatedData?.moistureReadings).toContainEqual(newReading);
+      expect(result).toEqual([mockMap]);
     });
   });
 
-  describe('Validation', () => {
-    it('validates sketch data', async () => {
-      const invalidData: SketchData = {
-        ...mockSketchData,
-        room: {
-          ...mockSketchData.room,
-          width: -1, // Invalid width
+  describe('getMapById', () => {
+    test('should return map by id with readings', async () => {
+      (prisma.moistureMap.findUnique as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(mockMap)
+      );
+
+      const result = await moistureService.getMapById('1');
+
+      expect(prisma.moistureMap.findUnique).toHaveBeenCalledWith({
+        where: { id: '1' },
+        include: {
+          readings: {
+            orderBy: {
+              timestamp: 'desc',
+            },
+          },
+        },
+      });
+
+      expect(result).toEqual(mockMap);
+    });
+
+    test('should return null if map not found', async () => {
+      (prisma.moistureMap.findUnique as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(null)
+      );
+
+      const result = await moistureService.getMapById('999');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('updateMap', () => {
+    test('should update map layout', async () => {
+      const updatedMap = {
+        ...mockMap,
+        layout: {
+          ...mockMap.layout,
+          walls: [
+            ...mockMap.layout.walls,
+            { start: { x: 100, y: 100 }, end: { x: 0, y: 100 } },
+          ],
         },
       };
 
-      await expect(moistureService.saveSketchData('job-1', invalidData))
-        .rejects
-        .toThrow('Room dimensions must be positive numbers');
+      (prisma.moistureMap.update as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(updatedMap)
+      );
+
+      const result = await moistureService.updateMap('1', {
+        layout: updatedMap.layout,
+      });
+
+      expect(prisma.moistureMap.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: {
+          layout: expect.any(Object),
+        },
+        include: {
+          readings: true,
+        },
+      });
+
+      expect(result).toEqual(updatedMap);
     });
 
-    it('validates moisture readings', async () => {
-      const invalidReading: MoistureReading = {
-        ...mockReading,
+    test('should validate updated layout', async () => {
+      await expect(moistureService.updateMap('1', {
+        layout: {
+          walls: [{ start: { x: 'invalid' } }], // Invalid coordinates
+        } as any,
+      })).rejects.toThrow('Invalid layout data');
+    });
+  });
+
+  describe('addReading', () => {
+    test('should add new moisture reading', async () => {
+      const updatedMap = {
+        ...mockMap,
+        readings: [
+          ...mockMap.readings,
+          {
+            ...mockReading,
+            id: '2',
+            value: 18.2,
+            location: { x: 150, y: 250 },
+          },
+        ],
+      };
+
+      (prisma.moistureMap.update as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(updatedMap)
+      );
+
+      const result = await moistureService.addReading('1', {
+        value: 18.2,
+        materialType: 'Drywall',
+        location: { x: 150, y: 250 },
+        notes: 'Test reading',
+      });
+
+      expect(prisma.moistureMap.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: {
+          readings: {
+            create: expect.objectContaining({
+              value: 18.2,
+              materialType: 'Drywall',
+              location: expect.any(Object),
+              notes: 'Test reading',
+            }),
+          },
+        },
+        include: {
+          readings: true,
+        },
+      });
+
+      expect(result).toEqual(updatedMap);
+    });
+
+    test('should validate reading data', async () => {
+      await expect(moistureService.addReading('1', {
         value: -1, // Invalid value
-      };
-
-      const invalidData: SketchData = {
-        ...mockSketchData,
-        moistureReadings: [invalidReading],
-      };
-
-      await expect(moistureService.saveSketchData('job-1', invalidData))
-        .rejects
-        .toThrow('Moisture reading cannot be negative');
+        materialType: 'Drywall',
+        location: { x: 150, y: 250 },
+      })).rejects.toThrow('Invalid reading value');
     });
   });
 
-  describe('Progress Tracking', () => {
-    it('calculates drying progress', () => {
-      const readings: MoistureReading[] = [
-        { ...mockReading, value: 10 }, // Below benchmark (dry)
-        { ...mockReading, id: 'reading-2', value: 15 }, // Above benchmark (wet)
-      ];
+  describe('updateReading', () => {
+    test('should update moisture reading', async () => {
+      const updatedReading = {
+        ...mockReading,
+        value: 20.5,
+        notes: 'Updated reading',
+      };
 
-      const progress = moistureService.getDryingProgress(readings);
-      expect(progress).toBe(50); // 1 out of 2 readings is dry
+      (prisma.moistureReading.update as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(updatedReading)
+      );
+
+      const result = await moistureService.updateReading('1', {
+        value: 20.5,
+        notes: 'Updated reading',
+      });
+
+      expect(prisma.moistureReading.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: {
+          value: 20.5,
+          notes: 'Updated reading',
+        },
+      });
+
+      expect(result).toEqual(updatedReading);
     });
 
-    it('estimates drying time', () => {
-      const readings: MoistureReading[] = [
-        { ...mockReading, value: 20, materialType: 'concrete' }, // Takes longer to dry
-        { ...mockReading, id: 'reading-2', value: 15, materialType: 'drywall' },
-      ];
-
-      const time = moistureService.getEstimatedDryingTime(readings);
-      expect(time).toBe(14); // Concrete takes 14 days
+    test('should validate updated reading value', async () => {
+      await expect(moistureService.updateReading('1', {
+        value: -1, // Invalid value
+      })).rejects.toThrow('Invalid reading value');
     });
   });
 
-  describe('Data Export', () => {
-    it('exports data with progress information', async () => {
-      // Set up data
-      await moistureService.saveSketchData('job-1', mockSketchData);
-      await moistureService.saveReadingHistory('job-1', [mockDailyReadings]);
+  describe('deleteReading', () => {
+    test('should delete moisture reading', async () => {
+      (prisma.moistureReading.delete as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(mockReading)
+      );
 
-      // Export data
-      const blob = await moistureService.exportData('job-1');
-      const data = JSON.parse(await blob.text());
+      await moistureService.deleteReading('1');
 
-      expect(data).toMatchObject({
-        jobId: 'job-1',
-        sketchData: mockSketchData,
-        history: [mockDailyReadings],
-        dryingProgress: expect.any(Number),
-        estimatedDryingTime: expect.any(Number),
+      expect(prisma.moistureReading.delete).toHaveBeenCalledWith({
+        where: { id: '1' },
       });
     });
   });
 
-  describe('Error Handling', () => {
-    it('handles missing data gracefully', async () => {
-      const data = await moistureService.getSketchData('non-existent');
-      expect(data).toBeNull();
-    });
+  describe('getReadingHistory', () => {
+    test('should return reading history for a location', async () => {
+      const mockHistory = [
+        { ...mockReading, timestamp: '2023-01-01T00:00:00Z', value: 15.5 },
+        { ...mockReading, timestamp: '2023-01-02T00:00:00Z', value: 14.2 },
+        { ...mockReading, timestamp: '2023-01-03T00:00:00Z', value: 12.8 },
+      ];
 
-    it('handles invalid JSON in localStorage', async () => {
-      localStorage.setItem('moisture-data-job-1-sketch', 'invalid json');
-      const data = await moistureService.getSketchData('job-1');
-      expect(data).toBeNull();
-    });
+      (prisma.moistureReading.findMany as jest.Mock).mockImplementationOnce(() => 
+        mockSuccess(mockHistory)
+      );
 
-    it('handles batch processing errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      
-      // Force an error by providing invalid data
-      const invalidReading = { ...mockReading, value: -1 };
-      await moistureService.addReading('job-1', invalidReading);
+      const result = await moistureService.getReadingHistory('1', {
+        x: 100,
+        y: 200,
+      }, {
+        radius: 10,
+        startDate: new Date('2023-01-01'),
+        endDate: new Date('2023-01-03'),
+      });
 
-      jest.runAllTimers();
-      await Promise.resolve();
+      expect(prisma.moistureReading.findMany).toHaveBeenCalledWith({
+        where: {
+          mapId: '1',
+          timestamp: {
+            gte: expect.any(Date),
+            lte: expect.any(Date),
+          },
+          location: expect.any(Object),
+        },
+        orderBy: {
+          timestamp: 'asc',
+        },
+      });
 
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(result).toEqual(mockHistory);
     });
   });
 });

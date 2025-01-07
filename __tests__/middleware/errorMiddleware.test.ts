@@ -1,50 +1,85 @@
-import { jest, expect, describe, it } from '@jest/globals';
 import { NextResponse } from 'next/server';
-import { 
-    ApiError, 
-    ValidationError, 
-    DatabaseError 
-} from '../../app/utils/errorHandling';
 import { errorHandler } from '../../app/middleware/errorMiddleware';
+import { ApiError, ValidationError, DatabaseError } from '../../app/utils/errorHandling';
 
 describe('Error Middleware', () => {
     const mockRequest = new Request('http://localhost/api/test');
+    beforeEach(() => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
 
-    describe('errorHandler', () => {
-        it('should handle ApiError', async () => {
-            const error = new ApiError('Test error', 400);
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    describe('Development Environment', () => {
+        beforeEach(() => {
+            jest.spyOn(process, 'env', 'get').mockReturnValue({ NODE_ENV: 'development' } as any);
+        });
+
+        it('should log errors in development', async () => {
+            const error = new Error('Test error');
+            await errorHandler(error, mockRequest);
+            expect(console.error).toHaveBeenCalledWith('API Error:', error);
+        });
+
+        it('should include actual error message in development', async () => {
+            const error = new Error('Detailed error message');
             const response = await errorHandler(error, mockRequest);
+            const data = await response.json();
+            expect(data.message).toBe('Detailed error message');
+        });
+    });
 
-            expect(response).toBeInstanceOf(NextResponse);
+    describe('Production Environment', () => {
+        beforeEach(() => {
+            jest.spyOn(process, 'env', 'get').mockReturnValue({ NODE_ENV: 'production' } as any);
+        });
+
+        it('should not log errors in production', async () => {
+            const error = new Error('Test error');
+            await errorHandler(error, mockRequest);
+            expect(console.error).not.toHaveBeenCalled();
+        });
+
+        it('should use generic error message in production', async () => {
+            const error = new Error('Sensitive error details');
+            const response = await errorHandler(error, mockRequest);
+            const data = await response.json();
+            expect(data.message).toBe('Internal server error');
+        });
+    });
+
+    describe('Error Type Handling', () => {
+        it('should handle ApiError', async () => {
+            const error = new ApiError('API error', 400);
+            const response = await errorHandler(error, mockRequest);
+            
             expect(response.status).toBe(400);
-
             const data = await response.json();
             expect(data).toEqual({
                 success: false,
-                message: 'Test error',
+                message: 'API error',
                 errors: [{
                     field: 'general',
-                    message: 'Test error'
+                    message: 'API error'
                 }]
             });
         });
 
-        it('should handle ValidationError with fields', async () => {
-            const error = new ValidationError('Validation failed', undefined, [
-                { field: 'username', message: 'Required' },
-                { field: 'email', message: 'Invalid format' }
-            ]);
+        it('should handle ValidationError with field errors', async () => {
+            const fieldErrors = [
+                { field: 'username', message: 'Required' }
+            ];
+            const error = new ValidationError('Validation failed', undefined, fieldErrors);
             const response = await errorHandler(error, mockRequest);
-
+            
             expect(response.status).toBe(400);
             const data = await response.json();
             expect(data).toEqual({
                 success: false,
                 message: 'Validation failed',
-                errors: [
-                    { field: 'username', message: 'Required' },
-                    { field: 'email', message: 'Invalid format' }
-                ]
+                errors: fieldErrors
             });
         });
 
@@ -52,7 +87,7 @@ describe('Error Middleware', () => {
             const originalError = new Error('DB connection failed');
             const error = new DatabaseError('Database error', originalError);
             const response = await errorHandler(error, mockRequest);
-
+            
             expect(response.status).toBe(500);
             const data = await response.json();
             expect(data).toEqual({
@@ -66,73 +101,38 @@ describe('Error Middleware', () => {
         });
 
         it('should handle unknown errors', async () => {
-            const error = new Error('Unknown error');
+            const error = { custom: 'error' };
             const response = await errorHandler(error, mockRequest);
-
+            
             expect(response.status).toBe(500);
             const data = await response.json();
-            expect(data).toEqual({
-                success: false,
-                message: 'Internal server error',
-                errors: [{
-                    field: 'general',
-                    message: 'Internal server error'
-                }]
-            });
+            expect(data.success).toBe(false);
+            expect(data.errors[0].field).toBe('general');
         });
+    });
 
-        it('should handle non-error objects', async () => {
-            const error = { message: 'Not an error' };
-            const response = await errorHandler(error, mockRequest);
-
-            expect(response.status).toBe(500);
-            const data = await response.json();
-            expect(data).toEqual({
-                success: false,
-                message: 'Internal server error',
-                errors: [{
-                    field: 'general',
-                    message: 'Internal server error'
-                }]
-            });
-        });
-
-        it('should handle errors in production mode', async () => {
-            // Mock process.env.NODE_ENV
-            const envSpy = jest.spyOn(process.env, 'NODE_ENV', 'get')
-                .mockReturnValue('production');
-
-            const error = new Error('Sensitive error');
-            const response = await errorHandler(error, mockRequest);
-
-            expect(response.status).toBe(500);
-            const data = await response.json();
-            expect(data).toEqual({
-                success: false,
-                message: 'Internal server error',
-                errors: [{
-                    field: 'general',
-                    message: 'Internal server error'
-                }]
-            });
-
-            envSpy.mockRestore();
-        });
-
-        it('should log errors in development mode', async () => {
-            // Mock process.env.NODE_ENV
-            const envSpy = jest.spyOn(process.env, 'NODE_ENV', 'get')
-                .mockReturnValue('development');
-            const consoleSpy = jest.spyOn(console, 'error')
-                .mockImplementation(() => {});
-
+    describe('Response Format', () => {
+        it('should return NextResponse instance', async () => {
             const error = new Error('Test error');
-            await errorHandler(error, mockRequest);
+            const response = await errorHandler(error, mockRequest);
+            expect(response).toBeInstanceOf(NextResponse);
+        });
 
-            expect(consoleSpy).toHaveBeenCalledWith('API Error:', error);
+        it('should include correct content type', async () => {
+            const error = new Error('Test error');
+            const response = await errorHandler(error, mockRequest);
+            expect(response.headers.get('content-type')).toBe('application/json');
+        });
 
-            consoleSpy.mockRestore();
-            envSpy.mockRestore();
+        it('should maintain consistent error response structure', async () => {
+            const error = new Error('Test error');
+            const response = await errorHandler(error, mockRequest);
+            const data = await response.json();
+            
+            expect(data).toHaveProperty('success', false);
+            expect(data).toHaveProperty('message');
+            expect(data).toHaveProperty('errors');
+            expect(Array.isArray(data.errors)).toBe(true);
         });
     });
 });
