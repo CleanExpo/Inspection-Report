@@ -1,0 +1,7 @@
+
+name = "servicepshere"
+account_id = "df2258ba0aac994526aa4e9fec9a946e"
+compatibility_date = "2024-01-04"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
