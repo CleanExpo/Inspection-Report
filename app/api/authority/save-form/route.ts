@@ -1,96 +1,55 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { AuthorityFormData, validateAuthorityForm } from '@/types/authority';
+import prisma from '../../../../lib/prisma';
+import { AuthorityForm, FormStatus } from '../../../../types/authority';
+import { withAuth } from '../../../../utils/auth';
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: Request) => {
   try {
     const data = await request.json();
+    const { jobId, formType, formData } = data;
 
-    if (!data) {
-      return NextResponse.json(
-        { error: 'No data provided' },
-        { status: 400 }
-      );
-    }
-
-    // Validate form data
-    const validation = validateAuthorityForm(data);
-    if (!validation.isValid) {
-      return NextResponse.json(
-        { 
-          error: 'Validation failed',
-          errors: validation.errors
-        },
-        { status: 400 }
-      );
-    }
-
-    // Here you would typically:
-    // 1. Save the form data to your database
-    // 2. Generate any necessary documents
-    // 3. Send notifications if needed
-
-    // For now, just log the data
-    console.log('Authority form saved:', data);
-
-    return NextResponse.json({
-      success: true,
-      message: 'Authority form saved successfully'
+    const form = await prisma.authorityForm.create({
+      data: {
+        jobId,
+        formType,
+        status: FormStatus.DRAFT,
+        data: formData
+      }
     });
 
+    return NextResponse.json(form);
   } catch (error) {
-    console.error('Error saving authority form:', error);
+    console.error('Error saving form:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to save authority form',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to save form' },
       { status: 500 }
     );
   }
-}
+});
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const jobNumber = searchParams.get('jobNumber');
-
-  if (!jobNumber) {
-    return NextResponse.json(
-      { error: 'Job number is required' },
-      { status: 400 }
-    );
-  }
-
+export const PUT = withAuth(async (request: Request) => {
   try {
-    // Here you would typically:
-    // 1. Query your database for the form data
-    // 2. Transform the data if needed
-    // 3. Handle any business logic
+    const data = await request.json();
+    const { id, formData, status } = data;
 
-    // For now, return mock data
-    const mockData: AuthorityFormData = {
-      jobNumber,
-      clientName: 'John Doe',
-      propertyAddress: '123 Main St, City',
-      authorizedBy: 'Jane Smith',
-      authorizedDate: new Date().toISOString().split('T')[0],
-      scope: 'Initial water damage restoration',
-      conditions: 'Work to be completed during business hours'
-    };
-
-    return NextResponse.json({
-      success: true,
-      data: mockData
+    const form = await prisma.authorityForm.update({
+      where: { id },
+      data: {
+        data: formData,
+        status,
+        ...(status === FormStatus.SUBMITTED && {
+          submittedAt: new Date(),
+          submittedBy: 'user' // In real app, get from auth context
+        })
+      }
     });
 
+    return NextResponse.json(form);
   } catch (error) {
-    console.error('Error fetching authority form:', error);
+    console.error('Error updating form:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to fetch authority form',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to update form' },
       { status: 500 }
     );
   }
-}
+});

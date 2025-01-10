@@ -1,0 +1,167 @@
+{
+  "building": {
+    "id": "building_001",
+    "name": "Example Building",
+    "location": {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "elevation": 100
+    },
+    "floors": [
+      {
+        "level": 1,
+        "rooms": [
+          {
+            "id": "room_1736144629489",
+            "boundary": {
+              "points": [
+                {
+                  "x": -4.6,
+                  "y": 0
+                },
+                {
+                  "x": 5,
+                  "y": -5
+                },
+                {
+                  "x": 1.4,
+                  "y": 5
+                },
+                {
+                  "x": 0,
+                  "y": 10
+                }
+              ],
+              "height": 1.2
+            },
+            "doors": [
+              {
+                "start": {
+                  "x": 5,
+                  "y": 1.5
+                },
+                "end": {
+                  "x": 5,
+                  "y": 3
+                },
+                "isOpen": false,
+                "type": "unknown"
+              }
+            ],
+            "windows": [
+              {
+                "start": {
+                  "x": 5,
+                  "y": 1.5
+                },
+                "end": {
+                  "x": 5,
+                  "y": 3
+                },
+                "height": 1.5,
+                "sillHeight": 1.0014912976000818
+              }
+            ],
+            "floorLevel": 1,
+            "ceiling": 1.2,
+            "metadata": {
+              "createdAt": 1736144629489,
+              "position": {
+                "x": 4.729759442415943,
+                "y": -6.456995062160972,
+                "z": -1.8673548502640598
+              }
+            }
+          }
+        ],
+        "elevation": 3.0811224681396716,
+        "metadata": {
+          "createdAt": 1736144629489
+        }
+      },
+      {
+        "level": 2,
+        "rooms": [
+          {
+            "id": "room_1736144629829",
+            "boundary": {
+              "points": [
+                {
+                  "x": -4.4,
+                  "y": 0
+                },
+                {
+                  "x": 5,
+                  "y": -5
+                },
+                {
+                  "x": 1.4,
+                  "y": 5
+                },
+                {
+                  "x": 0,
+                  "y": 10
+                }
+              ],
+              "height": 1.2
+            },
+            "doors": [
+              {
+                "start": {
+                  "x": 5,
+                  "y": 1.5
+                },
+                "end": {
+                  "x": 5,
+                  "y": 3
+                },
+                "isOpen": false,
+                "type": "unknown"
+              }
+            ],
+            "windows": [
+              {
+                "start": {
+                  "x": 5,
+                  "y": 1.5
+                },
+                "end": {
+                  "x": 5,
+                  "y": 3
+                },
+                "height": 1.5,
+                "sillHeight": 1.0040165857149017
+              }
+            ],
+            "floorLevel": 2,
+            "ceiling": 1.2,
+            "metadata": {
+              "createdAt": 1736144629829,
+              "position": {
+                "x": 17.483867586730913,
+                "y": -16.54589397294782,
+                "z": -7.671404132790789
+              }
+            }
+          }
+        ],
+        "elevation": 6.0174629492670615,
+        "metadata": {
+          "createdAt": 1736144629829
+        }
+      }
+    ],
+    "metadata": {
+      "mappingStartTime": 1736144629154
+    }
+  },
+  "transitions": [],
+  "timestamp": 1736144630214,
+  "version": "1.0.0",
+  "metadata": {
+    "creator": "RoomMapper",
+    "totalRooms": 3,
+    "totalFloors": 2,
+    "errors": 0
+  }
+}

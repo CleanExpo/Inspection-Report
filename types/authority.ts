@@ -1,101 +1,101 @@
-import type { PhotoAttachment } from './photo';
-
-export interface AuthorityFormData {
-  jobNumber: string;
-  clientName: string;
-  propertyAddress: string;
-  authorizedBy: string;
-  authorizedDate: string;
-  scope: string;
-  conditions?: string;
-  signature?: string;
-}
-
-export interface ValidationErrors {
-  [key: string]: string[];
-}
-
-export interface AuthorityResponse {
-  success: boolean;
-  message: string;
-  error?: string;
-}
-
-export interface AuthorityValidationResult {
-  isValid: boolean;
-  errors: ValidationErrors;
-}
-
-export interface AuthorityDocument {
+export interface AuthorityForm {
   id: string;
-  jobNumber: string;
-  type: 'commence' | 'completion' | 'variation';
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-  updatedAt: string;
-  data: AuthorityFormData;
-  approvedBy?: string;
-  approvedAt?: string;
-  rejectedBy?: string;
-  rejectedAt?: string;
-  rejectionReason?: string;
+  jobId: string;
+  formType: string;
+  status: FormStatus;
+  data: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+  submittedAt?: Date;
+  submittedBy?: string;
 }
 
-export interface AuthoritySearchParams {
-  jobNumber?: string;
-  type?: 'commence' | 'completion' | 'variation';
-  status?: 'pending' | 'approved' | 'rejected';
-  dateFrom?: string;
-  dateTo?: string;
+export enum FormStatus {
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED'
 }
 
-export interface AuthoritySearchResult {
-  total: number;
-  page: number;
-  pageSize: number;
-  results: AuthorityDocument[];
+export interface FormField {
+  id: string;
+  label: string;
+  type: FieldType;
+  required: boolean;
+  options?: string[];
+  validation?: ValidationRule[];
+  defaultValue?: any;
 }
 
-export const validateAuthorityForm = (data: AuthorityFormData): AuthorityValidationResult => {
-  const errors: ValidationErrors = {};
+export enum FieldType {
+  TEXT = 'TEXT',
+  NUMBER = 'NUMBER',
+  DATE = 'DATE',
+  SELECT = 'SELECT',
+  CHECKBOX = 'CHECKBOX',
+  RADIO = 'RADIO',
+  TEXTAREA = 'TEXTAREA',
+  SIGNATURE = 'SIGNATURE'
+}
 
-  if (!data.jobNumber) {
-    errors.jobNumber = ['Job number is required'];
-  } else if (!/^\d{6}-\d{2}$/.test(data.jobNumber)) {
-    errors.jobNumber = ['Invalid job number format. Expected format: XXXXXX-XX'];
-  }
+export interface ValidationRule {
+  type: ValidationType;
+  value?: any;
+  message: string;
+}
 
-  if (!data.clientName) {
-    errors.clientName = ['Client name is required'];
-  }
+export enum ValidationType {
+  REQUIRED = 'REQUIRED',
+  MIN_LENGTH = 'MIN_LENGTH',
+  MAX_LENGTH = 'MAX_LENGTH',
+  MIN_VALUE = 'MIN_VALUE',
+  MAX_VALUE = 'MAX_VALUE',
+  PATTERN = 'PATTERN',
+  CUSTOM = 'CUSTOM'
+}
 
-  if (!data.propertyAddress) {
-    errors.propertyAddress = ['Property address is required'];
-  }
+export interface FormTemplate {
+  id: string;
+  name: string;
+  description: string;
+  fields: FormField[];
+  createdAt: Date;
+  updatedAt: Date;
+  version: number;
+  isActive: boolean;
+}
 
-  if (!data.authorizedBy) {
-    errors.authorizedBy = ['Authorization name is required'];
-  }
+export interface FormSubmission {
+  id: string;
+  formId: string;
+  data: Record<string, any>;
+  submittedAt: Date;
+  submittedBy: string;
+  status: FormStatus;
+  notes?: string;
+  reviewedAt?: Date;
+  reviewedBy?: string;
+}
 
-  if (!data.authorizedDate) {
-    errors.authorizedDate = ['Authorization date is required'];
-  } else {
-    const date = new Date(data.authorizedDate);
-    if (isNaN(date.getTime())) {
-      errors.authorizedDate = ['Invalid authorization date'];
-    }
-  }
+export interface FormSection {
+  id: string;
+  title: string;
+  description?: string;
+  fields: FormField[];
+  order: number;
+  isRequired: boolean;
+}
 
-  if (!data.scope) {
-    errors.scope = ['Scope of work is required'];
-  }
+export interface FormValidationError {
+  field: string;
+  message: string;
+  type: ValidationType;
+  value?: any;
+}
 
-  if (!data.signature) {
-    errors.signature = ['Signature is required'];
-  }
-
-  return {
-    isValid: Object.keys(errors).length === 0,
-    errors
-  };
-};
+export interface FormMetadata {
+  totalSubmissions: number;
+  pendingReviews: number;
+  lastSubmissionDate?: Date;
+  averageCompletionTime?: number;
+}

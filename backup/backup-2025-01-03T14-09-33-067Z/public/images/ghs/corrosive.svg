@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Red diamond border -->
+  <rect x="10" y="10" width="80" height="80" transform="rotate(45 50 50)" 
+        fill="white" stroke="red" stroke-width="4"/>
+  
+  <!-- Corrosive symbol -->
+  <g transform="translate(50 50) scale(0.6)">
+    <!-- Left beaker -->
+    <path d="M-30 -20 L-20 -20 L-15 0 L-35 0 Z" fill="black"/>
+    <rect x="-40" y="0" width="30" height="5" fill="black"/>
+    
+    <!-- Right beaker -->
+    <path d="M20 20 L30 20 L35 0 L15 0 Z" fill="black"/>
+    <rect x="10" y="-5" width="30" height="5" fill="black"/>
+    
+    <!-- Drips -->
+    <path d="M-25 0 L-20 15 L-15 0" fill="black"/>
+    <path d="M25 -5 L30 -20 L35 -5" fill="black"/>
+  </g>
+</svg>

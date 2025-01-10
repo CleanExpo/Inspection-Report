@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
-import { uploadPhoto } from '../../../utils/storage';
-import type { PhotoUploadResponse } from '../../../types/photo';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export const config = {
   api: {
@@ -9,20 +9,18 @@ export const config = {
   },
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<PhotoUploadResponse>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      message: 'Method not allowed',
-      error: 'Only POST requests are allowed'
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    const uploadDir = path.join(process.cwd(), 'public/uploads');
+    await fs.mkdir(uploadDir, { recursive: true });
+
     const form = formidable({
+      uploadDir,
+      keepExtensions: true,
       maxFileSize: 10 * 1024 * 1024, // 10MB
     });
 
@@ -33,44 +31,17 @@ export default async function handler(
       });
     });
 
-    const jobNumber = fields.jobNumber?.[0];
-    if (!jobNumber) {
-      return res.status(400).json({
-        success: false,
-        message: 'Job number is required',
-        error: 'Missing job number'
-      });
-    }
+    const uploadedFiles = Array.isArray(files.photos) ? files.photos : [files.photos];
+    const fileUrls = uploadedFiles
+      .filter((file): file is formidable.File => file !== undefined)
+      .map(file => `/uploads/${path.basename(file.filepath)}`);
 
-    const file = files.photo?.[0];
-    if (!file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No photo file provided',
-        error: 'Missing photo file'
-      });
-    }
-
-    // Convert the temporary file to a File object
-    const photoFile = new File(
-      [await require('fs').promises.readFile(file.filepath)],
-      file.originalFilename || 'photo.jpg',
-      { type: file.mimetype || 'image/jpeg' }
-    );
-
-    // Upload to Google Cloud Storage
-    const result = await uploadPhoto(photoFile, jobNumber);
-
-    // Clean up temporary file
-    await require('fs').promises.unlink(file.filepath);
-
-    return res.status(result.success ? 200 : 500).json(result);
-  } catch (error) {
-    console.error('Error handling photo upload:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to upload photo',
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    return res.status(200).json({
+      message: 'Files uploaded successfully',
+      files: fileUrls
     });
+  } catch (error) {
+    console.error('Upload error:', error);
+    return res.status(500).json({ error: 'Failed to upload files' });
   }
 }

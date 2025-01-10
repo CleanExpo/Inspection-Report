@@ -1,0 +1,52 @@
+# Migration: Initial Database Setup
+# Description: Creates the initial database schema with all core tables and relationships
+
+# Migration Identifier
+migration_name = "20240108000000_initial"
+checksum = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+# Migration Dependencies
+dependencies = []
+
+# Applied Changes
+[changes]
+create_enum = [
+  "UserRole",
+  "JobType",
+  "Priority",
+  "JobStatus",
+  "EquipmentStatus"
+]
+
+create_table = [
+  "User",
+  "Job",
+  "Reading",
+  "Equipment",
+  "MaintenanceRecord",
+  "Client",
+  "UserPermission",
+  "_EquipmentToJob"
+]
+
+create_index = [
+  "User_email_key",
+  "Equipment_serialNumber_key",
+  "Client_email_key",
+  "_EquipmentToJob_AB_unique",
+  "_EquipmentToJob_B_index"
+]
+
+add_foreign_key = [
+  "Job_clientId_fkey",
+  "Job_createdById_fkey",
+  "Job_assignedToId_fkey",
+  "Reading_jobId_fkey",
+  "Reading_inspectorId_fkey",
+  "Reading_equipmentId_fkey",
+  "MaintenanceRecord_equipmentId_fkey",
+  "MaintenanceRecord_performedBy_fkey",
+  "UserPermission_userId_fkey",
+  "_EquipmentToJob_A_fkey",
+  "_EquipmentToJob_B_fkey"
+]

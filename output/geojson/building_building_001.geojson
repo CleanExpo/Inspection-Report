@@ -1,0 +1,123 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.8000000000000003,
+              0
+            ],
+            [
+              5,
+              -5
+            ],
+            [
+              1.4,
+              5
+            ],
+            [
+              0,
+              10
+            ],
+            [
+              0,
+              1.4000000000000001
+            ],
+            [
+              5,
+              0
+            ],
+            [
+              5,
+              -4.6
+            ],
+            [
+              0,
+              5
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "type": "building",
+        "floorLevel": 0,
+        "scale": 50
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.8000000000000003,
+              0
+            ],
+            [
+              5,
+              -5
+            ],
+            [
+              1.4,
+              5
+            ],
+            [
+              0,
+              10
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "type": "room",
+        "floorLevel": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              0,
+              1.4000000000000001
+            ],
+            [
+              5,
+              0
+            ],
+            [
+              5,
+              -4.6
+            ],
+            [
+              0,
+              5
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "type": "room",
+        "floorLevel": 0
+      }
+    }
+  ],
+  "properties": {
+    "generated": "2025-01-06T07:45:48.943Z",
+    "version": "1.0.0",
+    "metadata": {
+      "processingTime": 1736149548939,
+      "pointCount": 8,
+      "roomCount": 2,
+      "floorCount": 2,
+      "accuracy": 1
+    }
+  }
+}

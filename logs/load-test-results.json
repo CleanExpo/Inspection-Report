@@ -1,0 +1,48 @@
+{
+  "timestamp": "2025-01-04T09:58:22.150Z",
+  "results": [
+    {
+      "scenario": "Authentication",
+      "stats": {
+        "averageLatency": 0,
+        "maxLatency": 0,
+        "requestsPerSecond": 0,
+        "totalRequests": 0,
+        "errors": 0,
+        "timeouts": 0,
+        "duration": 10.23
+      }
+    },
+    {
+      "scenario": "Inspection List",
+      "stats": {
+        "averageLatency": 0,
+        "maxLatency": 0,
+        "requestsPerSecond": 0,
+        "totalRequests": 0,
+        "errors": 0,
+        "timeouts": 0,
+        "duration": 10.13
+      }
+    },
+    {
+      "scenario": "Create Report",
+      "stats": {
+        "averageLatency": 0,
+        "maxLatency": 0,
+        "requestsPerSecond": 0,
+        "totalRequests": 0,
+        "errors": 0,
+        "timeouts": 0,
+        "duration": 10.1
+      }
+    }
+  ],
+  "summary": {
+    "totalScenarios": 3,
+    "totalDuration": 30.46,
+    "averageLatency": 0,
+    "totalErrors": 0,
+    "totalTimeouts": 0
+  }
+}

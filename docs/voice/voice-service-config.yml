@@ -1,0 +1,221 @@
+# Voice Service Configuration
+
+# Speech Recognition Settings
+speech_recognition:
+  # Audio capture settings
+  audio:
+    sample_rate: 16000
+    channels: 1
+    bit_depth: 16
+    format: PCM
+    chunk_size: 1024
+    vad_threshold: 0.5
+
+  # Recognition parameters
+  recognition:
+    language: en-US
+    alternate_languages: [en-GB, en-AU]
+    confidence_threshold: 0.85
+    timeout: 5000
+    max_duration: 30000
+    silence_threshold: 500
+
+  # Noise handling
+  noise_reduction:
+    enabled: true
+    type: adaptive
+    min_gain: -12
+    max_gain: 12
+    adaptation_rate: 0.15
+
+# Natural Language Processing
+nlp:
+  # Intent recognition
+  intent:
+    confidence_threshold: 0.75
+    max_alternatives: 3
+    context_weight: 0.3
+    fallback_intent: help
+
+  # Entity extraction
+  entities:
+    enabled: true
+    types:
+      - location
+      - measurement
+      - equipment
+      - damage_type
+    custom_entities: true
+
+  # Context management
+  context:
+    history_size: 5
+    expiry: 300
+    weight_decay: 0.8
+
+# Text-to-Speech
+tts:
+  # Voice settings
+  voice:
+    default: female
+    pitch: 1.0
+    rate: 1.0
+    volume: 1.0
+
+  # Response generation
+  response:
+    max_length: 100
+    timeout: 3000
+    cache_size: 1000
+    preload_common: true
+
+# Voice Assistant
+assistant:
+  # Activation
+  wake_word:
+    enabled: true
+    phrases:
+      - "hey inspector"
+      - "inspector"
+    sensitivity: 0.7
+
+  # Interaction
+  interaction:
+    confirmation_required:
+      - delete
+      - submit
+      - finalize
+    auto_timeout: 30000
+    max_retries: 3
+
+  # Feedback
+  feedback:
+    audio_feedback: true
+    haptic_feedback: true
+    visual_feedback: true
+
+# Offline Support
+offline:
+  # Cache settings
+  cache:
+    max_size: 500MB
+    retention: 7d
+    priority_commands:
+      - moisture_reading
+      - photo_capture
+      - note_taking
+
+  # Local processing
+  local_processing:
+    enabled: true
+    max_commands: 50
+    battery_threshold: 20
+
+# Performance
+performance:
+  # Resource usage
+  resources:
+    max_memory: 256MB
+    max_cpu: 80
+    battery_saver: true
+
+  # Optimization
+  optimization:
+    cache_frequent: true
+    compress_audio: true
+    batch_processing: true
+
+# Security
+security:
+  # Authentication
+  auth:
+    voice_print:
+      enabled: true
+      min_samples: 3
+      update_frequency: 30d
+    timeout: 15m
+    max_attempts: 3
+
+  # Data protection
+  encryption:
+    audio: true
+    commands: true
+    profiles: true
+    algorithm: AES-256-GCM
+
+# Monitoring
+monitoring:
+  # Metrics
+  metrics:
+    collect_interval: 60
+    batch_size: 100
+    retention: 30d
+    
+  # Logging
+  logging:
+    level: info
+    max_size: 100MB
+    retention: 14d
+    include_audio: false
+
+  # Alerts
+  alerts:
+    error_threshold: 5
+    latency_threshold: 2000
+    battery_warning: 15
+
+# Integration
+integration:
+  # API endpoints
+  endpoints:
+    voice_processing: /api/v1/voice
+    command_processing: /api/v1/commands
+    profile_management: /api/v1/profiles
+
+  # External services
+  services:
+    moisture_meter:
+      enabled: true
+      connection_timeout: 5000
+      retry_attempts: 3
+    
+    thermal_camera:
+      enabled: true
+      connection_timeout: 5000
+      retry_attempts: 3
+
+# Development
+development:
+  # Debug settings
+  debug:
+    log_level: debug
+    save_audio: false
+    mock_responses: false
+    simulation_mode: false
+
+  # Testing
+  testing:
+    test_phrases_file: test_phrases.yml
+    record_interactions: true
+    auto_validation: true
+
+# Deployment
+deployment:
+  # Environment settings
+  environment:
+    production:
+      api_url: https://api.moisture-inspector.com
+      ws_url: wss://ws.moisture-inspector.com
+      cdn_url: https://cdn.moisture-inspector.com
+
+    staging:
+      api_url: https://staging-api.moisture-inspector.com
+      ws_url: wss://staging-ws.moisture-inspector.com
+      cdn_url: https://staging-cdn.moisture-inspector.com
+
+  # Scaling
+  scaling:
+    min_instances: 2
+    max_instances: 10
+    cpu_threshold: 70
+    memory_threshold: 80

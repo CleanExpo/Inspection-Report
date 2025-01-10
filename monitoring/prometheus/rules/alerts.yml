@@ -1,0 +1,153 @@
+groups:
+  - name: api_alerts
+    rules:
+      # High API Response Time
+      - alert: HighApiLatency
+        expr: rate(api_request_duration_seconds_sum[5m]) / rate(api_request_duration_seconds_count[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High API latency detected
+          description: API response time is above 500ms for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate detected
+          description: Error rate is above 5% for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # Low Cache Hit Rate
+      - alert: LowCacheHitRate
+        expr: rate(cache_hit_total[5m]) / (rate(cache_hit_total[5m]) + rate(cache_miss_total[5m])) < 0.7
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low cache hit rate
+          description: Cache hit rate is below 70% for the last 15 minutes
+          dashboard: https://grafana/d/system-metrics
+
+  - name: redis_alerts
+    rules:
+      # High Redis Memory Usage
+      - alert: HighRedisMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High Redis memory usage
+          description: Redis memory usage is above 80% for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # Redis Connection Issues
+      - alert: RedisConnectionIssues
+        expr: redis_connected_clients < 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis connection issues
+          description: No clients connected to Redis for the last minute
+          dashboard: https://grafana/d/system-metrics
+
+  - name: system_alerts
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: CPU usage is above 80% for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: Memory usage is above 85% for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # Disk Space Running Out
+      - alert: LowDiskSpace
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low disk space
+          description: Less than 15% disk space available
+          dashboard: https://grafana/d/system-metrics
+
+  - name: application_alerts
+    rules:
+      # High Rate of Authentication Failures
+      - alert: HighAuthFailureRate
+        expr: rate(auth_failure_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High rate of authentication failures
+          description: More than 10 authentication failures per second for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # Rate Limit Exceeded
+      - alert: RateLimitExceeded
+        expr: rate(rate_limit_exceeded_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High rate of rate limit violations
+          description: More than 50 rate limit violations per second for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # High Number of Concurrent Requests
+      - alert: HighConcurrentRequests
+        expr: nodejs_active_requests > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High number of concurrent requests
+          description: More than 1000 concurrent requests for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+  - name: business_alerts
+    rules:
+      # High Number of Failed Moisture Readings
+      - alert: HighFailedMoistureReadings
+        expr: rate(moisture_reading_failures_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High number of failed moisture readings
+          description: More than 5 moisture reading failures per second for the last 5 minutes
+          dashboard: https://grafana/d/system-metrics
+
+      # Stale Moisture Data
+      - alert: StaleMoistureData
+        expr: time() - moisture_last_reading_timestamp_seconds > 300
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Stale moisture data detected
+          description: No new moisture readings received in the last 5 minutes
+          dashboard: https://grafana/d/system-metrics

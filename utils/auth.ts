@@ -1,121 +1,88 @@
-import { hash, compare } from 'bcrypt';
-import * as jose from 'jose';
+import { verify, sign } from 'jsonwebtoken';
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
 
-const ADMIN_CREDENTIALS = {
-  username: process.env.ADMIN_USERNAME || 'admin',
-  password: process.env.ADMIN_PASSWORD || 'admin123'
-};
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const SALT_ROUNDS = 10;
-
-export interface AuthToken {
-  userId: string;
-  username: string;
+export interface AuthUser {
+  id: string;
+  email: string;
   role: string;
-  exp: number;
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  try {
-    return await hash(password, SALT_ROUNDS);
-  } catch (error) {
-    console.error('Error hashing password:', error);
-    throw new Error('Failed to hash password');
-  }
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
 }
 
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  try {
-    return await compare(password, hashedPassword);
-  } catch (error) {
-    console.error('Error verifying password:', error);
-    throw new Error('Failed to verify password');
-  }
+export async function comparePasswords(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
 }
 
-export async function generateToken(payload: Omit<AuthToken, 'exp'>): Promise<string> {
-  try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    return await new jose.SignJWT({
-      ...payload,
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('24h')
-      .sign(secret);
-  } catch (error) {
-    console.error('Error generating token:', error);
-    throw new Error('Failed to generate token');
-  }
+export function generateToken(user: AuthUser): string {
+  return sign(
+    { userId: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET || 'default-secret',
+    { expiresIn: '1d' }
+  );
 }
 
-export async function verifyToken(token: string): Promise<AuthToken> {
+export async function verifyToken(token: string): Promise<AuthUser | null> {
   try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jose.jwtVerify(token, secret);
-    
-    // Validate that payload has all required fields
-    if (!payload.userId || !payload.username || !payload.role || !payload.exp) {
-      throw new Error('Invalid token payload');
-    }
-    
+    const decoded = verify(token, process.env.JWT_SECRET || 'default-secret') as any;
     return {
-      userId: payload.userId as string,
-      username: payload.username as string,
-      role: payload.role as string,
-      exp: payload.exp as number
+      id: decoded.userId,
+      email: decoded.email,
+      role: decoded.role
     };
   } catch (error) {
-    console.error('Error verifying token:', error);
-    throw new Error('Invalid or expired token');
+    return null;
   }
 }
 
-export async function validateAdminCredentials(username: string, password: string): Promise<boolean> {
-  try {
-    if (username !== ADMIN_CREDENTIALS.username) {
-      return false;
-    }
-
-    // For development, use plain text comparison
-    if (process.env.NODE_ENV === 'development') {
-      return password === ADMIN_CREDENTIALS.password;
-    }
-
-    // For production, use hashed comparison
-    const hashedPassword = await hashPassword(ADMIN_CREDENTIALS.password);
-    return await verifyPassword(password, hashedPassword);
-  } catch (error) {
-    console.error('Error validating admin credentials:', error);
-    throw new Error('Failed to validate credentials');
+export async function getAuthUser(request: NextRequest): Promise<AuthUser | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value;
+  
+  if (!token) {
+    return null;
   }
+
+  return verifyToken(token);
 }
 
-export function requireAuth(handler: Function) {
-  return async (req: any, res: any) => {
-    try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader?.startsWith('Bearer ')) {
-        return res.status(401).json({
-          success: false,
-          message: 'No token provided'
-        });
-      }
+export function withAuth(handler: Function) {
+  return async (request: NextRequest) => {
+    const user = await getAuthUser(request);
 
-      const token = authHeader.split(' ')[1];
-      const decoded = await verifyToken(token);
-
-      // Add user info to request
-      req.user = decoded;
-
-      return handler(req, res);
-    } catch (error) {
-      console.error('Auth middleware error:', error);
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid or expired token'
-      });
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
+
+    return handler(request, user);
+  };
+}
+
+export function withRole(handler: Function, allowedRoles: string[]) {
+  return async (request: NextRequest) => {
+    const user = await getAuthUser(request);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    if (!allowedRoles.includes(user.role)) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      );
+    }
+
+    return handler(request, user);
   };
 }

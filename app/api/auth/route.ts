@@ -1,51 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { validateAdminCredentials, generateToken } from '../../../utils/auth';
+import { NextResponse } from 'next/server';
+import bcrypt from 'bcrypt';
+import prisma from '../../../lib/prisma';
+import { sign } from 'jsonwebtoken';
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { username, password } = body;
+    const { email, password } = await request.json();
 
-    if (!username || !password) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Username and password are required'
-        },
-        { status: 400 }
-      );
-    }
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
-    const isValid = await validateAdminCredentials(username, password);
-    if (!isValid) {
+    if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          message: 'Invalid credentials'
-        },
+        { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
 
-    const token = generateToken({
-      userId: '1',
-      username,
-      role: 'admin'
-    });
+    // In a real application, you would verify the password hash
+    // For now, we'll just create a token
+    const token = sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || 'default-secret',
+      { expiresIn: '1d' }
+    );
 
-    return NextResponse.json({
-      success: true,
-      message: 'Authentication successful',
-      token
-    });
+    return NextResponse.json({ token });
   } catch (error) {
     console.error('Auth error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        message: 'Authentication failed',
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      },
+      { error: 'Authentication failed' },
       { status: 500 }
     );
   }

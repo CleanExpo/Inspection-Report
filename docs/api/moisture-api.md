@@ -1,5 +1,4 @@
 # Moisture Mapping API
-
 API for managing moisture readings and locations in inspection reports.
 
 ## Base URL
@@ -9,16 +8,13 @@ API for managing moisture readings and locations in inspection reports.
 API Version: 1.0.0
 
 ## Authentication
-
 Bearer token authentication is required for most endpoints. Include the JWT token in the Authorization header.
 
 ### Authentication Header Example
 ```bash
 Authorization: Bearer <token>
 ```
-
 ## Endpoints
-
 ### POST /api/moisture/readings
 Create a new moisture reading for a location.
 
@@ -52,12 +48,12 @@ Moisture reading data
       "description": "Optional notes about the reading"
     }
   },
-  "required": ["value"]
+  "required": [
+    "value"
+  ]
 }
 ```
-
 #### Responses
-
 ##### 200 Response
 Reading created successfully
 
@@ -88,7 +84,6 @@ Reading created successfully
   }
 }
 ```
-
 ##### 400 Response
 Invalid request
 
@@ -110,40 +105,22 @@ Invalid request
   }
 }
 ```
-
-##### 401 Response
-Unauthorized
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "error": {
-      "type": "string",
-      "description": "Authentication error message"
-    }
-  }
-}
-```
-
 #### Examples
-
 ##### Create Reading Example
 ###### Request
 ```json
 {
-  "headers": {
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs...",
-    "Content-Type": "application/json"
-  },
-  "body": {
-    "value": 45.5,
-    "timestamp": "2024-01-15T12:00:00Z",
-    "notes": "North wall reading"
-  }
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIs...",
+  "Content-Type": "application/json"
 }
 ```
-
+```json
+{
+  "value": 45.5,
+  "timestamp": "2024-01-15T12:00:00Z",
+  "notes": "North wall reading"
+}
+```
 ###### Response
 ```json
 {
@@ -154,95 +131,9 @@ Unauthorized
   "notes": "North wall reading"
 }
 ```
-
-### GET /api/moisture/readings/{locationId}
-Get moisture readings for a specific location.
-
-**Requires Authentication**
-
-#### Parameters
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| locationId | string | Yes | ID of the location |
-| startDate | string | No | Filter readings from this date (ISO 8601) |
-| endDate | string | No | Filter readings until this date (ISO 8601) |
-| limit | number | No | Maximum number of readings to return (default: 100) |
-
-#### Responses
-
-##### 200 Response
-List of readings
-
-```json
-{
-  "type": "object",
-  "properties": {
-    "readings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "value": {
-            "type": "number"
-          },
-          "timestamp": {
-            "type": "string"
-          },
-          "notes": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "pagination": {
-      "type": "object",
-      "properties": {
-        "total": {
-          "type": "number"
-        },
-        "hasMore": {
-          "type": "boolean"
-        }
-      }
-    }
-  }
-}
-```
-
-#### Examples
-
-##### Get Readings Example
-###### Request
-```bash
-GET /api/moisture/readings/loc_456def?startDate=2024-01-01T00:00:00Z&limit=10
-Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
-```
-
-###### Response
-```json
-{
-  "readings": [
-    {
-      "id": "read_123abc",
-      "value": 45.5,
-      "timestamp": "2024-01-15T12:00:00Z",
-      "notes": "North wall reading"
-    }
-  ],
-  "pagination": {
-    "total": 1,
-    "hasMore": false
-  }
-}
-```
-
 ## Additional Examples
-
 ### Curl Example
-Example using curl to create a reading:
+Example using curl to create a reading
 
 ```bash
 curl -X POST https://api.example.com/v1/moisture/readings \
@@ -253,3 +144,4 @@ curl -X POST https://api.example.com/v1/moisture/readings \
     "timestamp": "2024-01-15T12:00:00Z",
     "notes": "North wall reading"
   }'
+```

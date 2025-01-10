@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" 
+     width="800" 
+     height="600" 
+     viewBox="-20 -20 840 640">
+  <defs>
+    
+    <!-- Arrow marker for dimensions -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+            markerWidth="4" markerHeight="4"
+            orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#666666"/>
+    </marker>
+    
+    <!-- Door arc -->
+    <marker id="doorArc" viewBox="0 0 10 10" refX="5" refY="5"
+            markerWidth="4" markerHeight="4">
+      <path d="M 0 10 A 10 10 0 0 1 10 0" 
+            fill="none" 
+            stroke="#0066cc" 
+            stroke-width="1"/>
+    </marker>
+  </defs>
+  <g transform="translate(20,20) scale(37.333333333333336) rotate(0)">
+    <g class="layer-walls" 
+              opacity="1" 
+              stroke="#000000" 
+              fill="none" 
+              stroke-width="2">
+      <polyline points="-3.8000000000000003,0 5,-5 1.4,5 0,10" />
+<polyline points="0,1.4000000000000001 5,0 5,-4.6 0,5" />
+    </g>
+<g class="layer-doors" 
+              opacity="1" 
+              stroke="#0066cc" 
+              fill="none" 
+              stroke-width="2">
+      <line x1="5" y1="1.5" 
+                    x2="5" y2="3" 
+                    marker-end="url(#doorArc)" />
+<line x1="5" y1="1.5" 
+                    x2="5" y2="3" 
+                    marker-end="url(#doorArc)" />
+    </g>
+<g class="layer-windows" 
+              opacity="1" 
+              stroke="#99ccff" 
+              fill="none" 
+              stroke-width="2">
+      <line x1="4.9" y1="5" 
+                    x2="5" y2="4.4" 
+                    stroke-dasharray="5,3" />
+<line x1="5" y1="1.5" 
+                    x2="5" y2="3" 
+                    stroke-dasharray="5,3" />
+<line x1="5" y1="1.5" 
+                    x2="5" y2="3" 
+                    stroke-dasharray="5,3" />
+    </g>
+  </g>
+</svg>

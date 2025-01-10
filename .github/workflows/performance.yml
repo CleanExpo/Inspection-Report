@@ -1,0 +1,124 @@
+name: Performance Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run daily at midnight UTC
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    
+    services:
+      # Setup PostgreSQL for tests
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # Needed for benchmark comparison
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Setup test database
+      - name: Setup Database
+        run: |
+          npx prisma migrate deploy
+          npx prisma generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+
+      # Download previous benchmark results
+      - name: Download previous benchmark data
+        uses: actions/cache@v3
+        with:
+          path: __tests__/api/inspections/sections/benchmark-results.json
+          key: ${{ runner.os }}-benchmark-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-benchmark-
+
+      # Run performance tests
+      - name: Run performance tests
+        run: |
+          npm test __tests__/api/inspections/sections/performance.test.ts
+          npm test __tests__/api/inspections/sections/load.test.ts
+          npm test __tests__/api/inspections/sections/stress.test.ts
+        env:
+          CI: true
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+
+      # Run benchmarks
+      - name: Run benchmark tests
+        run: npm test __tests__/api/inspections/sections/benchmark.test.ts
+        env:
+          CI: true
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+
+      # Analyze results
+      - name: Analyze performance results
+        run: node .github/scripts/analyze-performance.js
+        continue-on-error: true
+
+      # Store benchmark results
+      - name: Store benchmark results
+        uses: actions/cache@v3
+        with:
+          path: __tests__/api/inspections/sections/benchmark-results.json
+          key: ${{ runner.os }}-benchmark-${{ github.sha }}
+
+      # Create performance report
+      - name: Generate performance report
+        run: node .github/scripts/generate-report.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload performance artifacts
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            __tests__/api/inspections/sections/benchmark-results.json
+            __tests__/api/inspections/sections/performance-metrics.json
+            __tests__/api/inspections/sections/performance-events.json
+            performance-report.md
+
+      # Comment on PR if performance degraded
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('performance-report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });

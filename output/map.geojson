@@ -1,0 +1,219 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -122.4194,
+          37.7749,
+          100
+        ]
+      },
+      "properties": {
+        "type": "building",
+        "name": "Example Building",
+        "id": "building_001",
+        "floors": 2,
+        "metadata": {
+          "mappingStartTime": 1736144629154
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -122.5114,
+              37.7749,
+              3.0811224681396716
+            ],
+            [
+              -122.3194,
+              37.6749,
+              3.0811224681396716
+            ],
+            [
+              -122.39139999999999,
+              37.874900000000004,
+              3.0811224681396716
+            ],
+            [
+              -122.4194,
+              37.974900000000005,
+              3.0811224681396716
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "type": "room",
+        "id": "room_1736144629489",
+        "floorLevel": 1,
+        "ceiling": 1.2,
+        "metadata": {
+          "createdAt": 1736144629489,
+          "position": {
+            "x": 4.729759442415943,
+            "y": -6.456995062160972,
+            "z": -1.8673548502640598
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.3194,
+            37.8049,
+            3.0811224681396716
+          ],
+          [
+            -122.3194,
+            37.834900000000005,
+            3.0811224681396716
+          ]
+        ]
+      },
+      "properties": {
+        "type": "door",
+        "doorType": "unknown",
+        "isOpen": false,
+        "floorLevel": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.3194,
+            37.8049,
+            4.082613765739754
+          ],
+          [
+            -122.3194,
+            37.834900000000005,
+            4.082613765739754
+          ]
+        ]
+      },
+      "properties": {
+        "type": "window",
+        "height": 1.5,
+        "sillHeight": 1.0014912976000818,
+        "floorLevel": 1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -122.50739999999999,
+              37.7749,
+              6.0174629492670615
+            ],
+            [
+              -122.3194,
+              37.6749,
+              6.0174629492670615
+            ],
+            [
+              -122.39139999999999,
+              37.874900000000004,
+              6.0174629492670615
+            ],
+            [
+              -122.4194,
+              37.974900000000005,
+              6.0174629492670615
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "type": "room",
+        "id": "room_1736144629829",
+        "floorLevel": 2,
+        "ceiling": 1.2,
+        "metadata": {
+          "createdAt": 1736144629829,
+          "position": {
+            "x": 17.483867586730913,
+            "y": -16.54589397294782,
+            "z": -7.671404132790789
+          }
+        }
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.3194,
+            37.8049,
+            6.0174629492670615
+          ],
+          [
+            -122.3194,
+            37.834900000000005,
+            6.0174629492670615
+          ]
+        ]
+      },
+      "properties": {
+        "type": "door",
+        "doorType": "unknown",
+        "isOpen": false,
+        "floorLevel": 2
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -122.3194,
+            37.8049,
+            7.021479534981963
+          ],
+          [
+            -122.3194,
+            37.834900000000005,
+            7.021479534981963
+          ]
+        ]
+      },
+      "properties": {
+        "type": "window",
+        "height": 1.5,
+        "sillHeight": 1.0040165857149017,
+        "floorLevel": 2
+      }
+    }
+  ],
+  "properties": {
+    "timestamp": 1736144630214,
+    "version": "1.0.0",
+    "metadata": {
+      "creator": "RoomMapper",
+      "totalRooms": 3,
+      "totalFloors": 2,
+      "errors": 0
+    }
+  }
+}

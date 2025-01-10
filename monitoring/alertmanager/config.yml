@@ -1,0 +1,120 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: '${SLACK_API_URL}'
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: '${SMTP_FROM}'
+  smtp_auth_username: '${SMTP_USERNAME}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'slack-notifications'
+  routes:
+    # Critical alerts go to both Slack and email
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      continue: true
+      repeat_interval: 1h
+
+    # Warning alerts go to Slack
+    - match:
+        severity: warning
+      receiver: 'slack-notifications'
+      continue: true
+
+    # Info alerts go to Slack with different channel
+    - match:
+        severity: info
+      receiver: 'slack-info'
+
+receivers:
+  - name: 'slack-notifications'
+    slack_configs:
+      - channel: '#alerts'
+        send_resolved: true
+        icon_url: 'https://avatars3.githubusercontent.com/u/3380462'
+        title: |-
+          [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+        text: >-
+          {{ range .Alerts -}}
+          *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+          *Description:* {{ .Annotations.description }}
+          *Duration:* {{ .StartsAt | since }}
+          *Dashboard:* {{ .Annotations.dashboard }}
+          {{ if .Labels.instance }}*Instance:* {{ .Labels.instance }}{{ end }}
+          {{ end }}
+
+  - name: 'critical-alerts'
+    slack_configs:
+      - channel: '#critical-alerts'
+        send_resolved: true
+        icon_url: 'https://avatars3.githubusercontent.com/u/3380462'
+        title: |-
+          [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+        text: >-
+          {{ range .Alerts -}}
+          *Alert:* {{ .Annotations.title }}{{ if .Labels.severity }} - `{{ .Labels.severity }}`{{ end }}
+          *Description:* {{ .Annotations.description }}
+          *Duration:* {{ .StartsAt | since }}
+          *Dashboard:* {{ .Annotations.dashboard }}
+          {{ if .Labels.instance }}*Instance:* {{ .Labels.instance }}{{ end }}
+          {{ end }}
+    email_configs:
+      - to: '${ALERT_EMAIL_TO}'
+        send_resolved: true
+        headers:
+          subject: |-
+            [{{ .Status | toUpper }}] Critical Alert - {{ .CommonLabels.alertname }}
+        html: |-
+          <h2>{{ .CommonLabels.alertname }}</h2>
+          <p><strong>Status:</strong> {{ .Status }}</p>
+          {{ range .Alerts }}
+          <h3>Instance: {{ .Labels.instance }}</h3>
+          <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+          <p><strong>Started:</strong> {{ .StartsAt }}</p>
+          <p><strong>Dashboard:</strong> <a href="{{ .Annotations.dashboard }}">View Dashboard</a></p>
+          {{ end }}
+
+  - name: 'slack-info'
+    slack_configs:
+      - channel: '#monitoring-info'
+        send_resolved: true
+        icon_url: 'https://avatars3.githubusercontent.com/u/3380462'
+        title: |-
+          [{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}
+        text: >-
+          {{ range .Alerts -}}
+          *Info:* {{ .Annotations.description }}
+          *Duration:* {{ .StartsAt | since }}
+          {{ if .Labels.instance }}*Instance:* {{ .Labels.instance }}{{ end }}
+          {{ end }}
+
+inhibit_rules:
+  # Prevent warning alerts if the same alert exists as critical
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname']
+
+  # Prevent info alerts if warning or critical exists
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal: ['alertname']
+
+  # Prevent multiple alerts from same instance
+  - source_match_re:
+      severity: '^(critical|warning)$'
+    target_match_re:
+      severity: '^(warning|info)$'
+    equal: ['instance']
