@@ -395,3 +395,34 @@ function validateDate(
         }
     }
 }
+
+/**
+ * Validates client data against all validation rules
+ */
+export function validateClientData(
+    data: Record<string, any>,
+    fields: ClientField[],
+    businessRules: BusinessRule[] = []
+): ValidationResult {
+    // Get required fields
+    const requiredFields = fields.filter(f => f.required);
+    
+    // Run all validations
+    const requiredResult = validateRequiredFields(data, requiredFields);
+    const fieldsResult = validateClientFields(data, fields);
+    const relationshipsResult = validateRelationships(data, fields);
+    const rulesResult = validateBusinessRules(data, businessRules);
+
+    // Combine all errors
+    const errors = [
+        ...requiredResult.errors,
+        ...fieldsResult.errors,
+        ...relationshipsResult.errors,
+        ...rulesResult.errors
+    ];
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}

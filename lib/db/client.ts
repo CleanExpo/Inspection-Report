@@ -3,7 +3,8 @@ import { loggingMiddleware, performanceMiddleware } from './middleware';
 
 // Prevent multiple instances of Prisma Client in development
 declare global {
-  var prisma: PrismaClient | undefined;
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined; // This needs to use var for global augmentation
 }
 
 const createPrismaClient = () => {

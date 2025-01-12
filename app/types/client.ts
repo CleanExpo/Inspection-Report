@@ -32,6 +32,9 @@ export interface Job {
 export type JobStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
 export type JobPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 
+export const JOB_STATUSES: JobStatus[] = ['PENDING', 'IN_PROGRESS', 'COMPLETED'];
+export const JOB_PRIORITIES: JobPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
+
 export interface ClientFormData {
   name: string;
   email?: string;
